@@ -15,8 +15,6 @@ export default function Landingpage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-green-100 text-gray-800 font-sans">
-      {/* Navbar */}
-     
 
       {/* Hero Section */}
       <section className="text-center py-20 px-6 bg-[url('/hero-bg.svg')] bg-cover">
