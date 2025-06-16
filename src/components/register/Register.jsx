@@ -851,7 +851,7 @@ export default function MultiStepRegister() {
   };
 
   const StepIndicator = () => (
-    <div className="flex items-center justify-center mb-8">
+    <div className="flex items-center justify-center mb-3">
       {steps.map((step, index) => {
         const isCompleted = completedSteps.includes(step.id);
         const isCurrent = currentStep === step.id;
@@ -1214,7 +1214,7 @@ export default function MultiStepRegister() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex flex-col items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex flex-col items-center justify-center px-4 py-8 m-8">
       <div className="max-w-2xl w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
