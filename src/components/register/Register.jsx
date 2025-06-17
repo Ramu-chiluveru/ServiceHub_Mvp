@@ -10,7 +10,7 @@
 //   const [completedSteps, setCompletedSteps] = useState([]);
 
 //   const [showPassword, setShowPassword] = useState(false);
-  
+
 //   const [form, setForm] = useState({
 //     // Step 1: Basic Registration
 //     email: "",
@@ -128,20 +128,20 @@
 //     try {
 //       // Simulate API call
 //       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
 //       // Mock API endpoints for each step
 //       const endpoints = {
 //         1: '/api/auth/register',
 //         2: '/api/user/role',
 //         3: '/api/user/profile'
 //       };
-      
+
 //       console.log(`Sending to ${endpoints[step]}:`, stepData);
-      
+
 //       // Simulate success response
 //       showToast(`Step ${step} completed successfully!`, "success");
 //       setCompletedSteps([...completedSteps, step]);
-      
+
 //       if (step < 3) {
 //         setCurrentStep(step + 1);
 //       } else {
@@ -157,7 +157,7 @@
 
 //   const handleStepSubmit = (e) => {
 //     if (e) e.preventDefault();
-    
+
 //     if (currentStep === 1) {
 //       // Validate Step 1
 //       if (!otpSent) return showToast("Please verify email with OTP.", "error");
@@ -165,7 +165,7 @@
 //       if (!form.firstName || !form.lastName) return showToast("Enter full name.", "error");
 //       if (!validatePassword(form.password)) return showToast("Password must be at least 6 chars with capital letter & number.", "error");
 //       if (form.password !== form.confirmPassword) return showToast("Passwords do not match.", "error");
-      
+
 //       const stepData = {
 //         email: form.email,
 //         firstName: form.firstName,
@@ -173,22 +173,22 @@
 //         password: form.password
 //       };
 //       sendToBackend(stepData, 1);
-      
+
 //     } else if (currentStep === 2) {
 //       // Validate Step 2
 //       if (!form.role) return showToast("Please select your role.", "error");
-      
+
 //       const stepData = { role: form.role };
 //       sendToBackend(stepData, 2);
-      
+
 //     } else if (currentStep === 3) {
 //       // Validate Step 3
 //       if (!form.phone || !form.address) return showToast("Please fill all required fields.", "error");
-      
+
 //       if (form.role === 'provider' && (!form.businessName || form.services.length === 0)) {
 //         return showToast("Please complete your business information.", "error");
 //       }
-      
+
 //       const stepData = {
 //         phone: form.phone,
 //         address: form.address,
@@ -212,7 +212,7 @@
 //         const isCompleted = completedSteps.includes(step.id);
 //         const isCurrent = currentStep === step.id;
 //         const isAccessible = step.id <= currentStep || isCompleted;
-        
+
 //         return (
 //           <div key={step.id} className="flex items-center">
 //             <div className={`flex flex-col items-center ${isAccessible ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
@@ -347,7 +347,7 @@
 //         <h3 className="text-xl font-semibold text-gray-800 mb-2">How do you want to use ServiceHub?</h3>
 //         <p className="text-gray-600">Choose your role to get personalized experience</p>
 //       </div>
-      
+
 //       <div className="grid grid-cols-1 gap-4">
 //         <div 
 //           onClick={() => setForm({...form, role: 'customer'})}
@@ -367,7 +367,7 @@
 //             </div>
 //           </div>
 //         </div>
-        
+
 //         <div 
 //           onClick={() => setForm({...form, role: 'provider'})}
 //           className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${
@@ -410,7 +410,7 @@
 //             className="flex-1 border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors"
 //           />
 //         </div>
-        
+
 //         <div className="flex items-center space-x-4">
 //           <span className="text-gray-400 text-xl">📍</span>
 //           <textarea
@@ -470,7 +470,7 @@
 //               placeholder="Business Name"
 //               className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors"
 //             />
-            
+
 //             <div>
 //               <h4 className="font-semibold text-gray-800 mb-3">Services You Offer</h4>
 //               <div className="grid grid-cols-2 gap-3">
@@ -596,7 +596,7 @@
 //           </p>
 //         </div>
 //       </div>
-      
+
 //       {/* Custom Toast System */}
 //       <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 space-y-2">
 //         {toasts.map(toast => (
@@ -612,7 +612,7 @@
 //           </div>
 //         ))}
 //       </div>
-      
+
 //       <Toaster 
 //         position="top-center"
 //         toastOptions={{
@@ -625,7 +625,7 @@
 //           }
 //         }}
 //       />
-      
+
 //       <style jsx>{`
 //         @keyframes fadeIn {
 //           from { opacity: 0; transform: translateY(10px); }
@@ -644,6 +644,7 @@ import React, { useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { Eye, EyeOff } from "lucide-react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -659,6 +660,8 @@ import {
   showToast,
   removeToast
 } from "../../store/slices/formSlice";
+
+const BASE_URL = 'http://localhost:8080';
 
 export default function MultiStepRegister() {
   const { 
@@ -702,14 +705,13 @@ export default function MultiStepRegister() {
     const toastTimeouts = toasts.map(toast => {
       return setTimeout(() => {
         dispatch(removeToast(toast.id));
-      }, 3000); // 6 seconds
+      }, 3000);
     });
 
     return () => {
       toastTimeouts.forEach(timeout => clearTimeout(timeout));
     };
   }, [toasts, dispatch]);
-
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -752,26 +754,59 @@ export default function MultiStepRegister() {
   const sendToBackend = async (stepData, step) => {
     dispatch(setLoading(true));
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const endpoints = {
-        1: '/api/auth/register',
-        2: '/api/user/role',
-        3: '/api/user/profile'
-      };
-      
-      console.log(`Sending to ${endpoints[step]}:`, stepData);
-      
-      dispatch(showToast({ message: `Step ${step} completed successfully!`, type: "success" }));
+      let endpoint = "";
+      let payload = {};
+
+      if (step === 1) {
+        endpoint = "/api/user/register";
+        payload = {
+          email: form.email,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          password: form.password
+        };
+      } else if (step === 2) {
+        endpoint = "/api/user/role";
+        payload = {
+          email: form.email,
+          role: form.role
+        };
+      } else if (step === 3) {
+        endpoint = "/api/user/profile";
+        payload = {
+          email: form.email,
+          phone: form.phone,
+          street: form.street,
+          village: form.village,
+          mandal: form.mandal,
+          district: form.district,
+          state: form.state,
+          pincode: form.pincode,
+          ...(form.role === "customer" ? { preferences: form.preferences } : {}),
+          ...(form.role === "provider" ? {
+            services: form.services
+          } : {})
+        };
+      }
+
+      const res = await axios.post(`${BASE_URL}${endpoint}`, payload, {
+        headers: {
+          "Content-Type": "application/json"
+        },
+        withCredentials: true
+      });
+
+      dispatch(showToast({ message: res.data || `Step ${step} completed!`, type: "success" }));
       dispatch(setCompletedSteps([...completedSteps, step]));
-      
+
       if (step < 3) {
         dispatch(setCurrentStep(step + 1));
       } else {
-        dispatch(showToast({ message: "Registration completed! Welcome to ServiceHub!", type: "success" }));
+        dispatch(showToast({ message: "Registration completed!", type: "success" }));
       }
     } catch (error) {
-      dispatch(showToast({ message: "Something went wrong. Please try again.", type: "error" }));
+      const message = error?.response?.data || error?.message || "Something went wrong";
+      dispatch(showToast({ message, type: "error" }));
     } finally {
       dispatch(setLoading(false));
     }
@@ -808,43 +843,39 @@ export default function MultiStepRegister() {
         lastName: form.lastName,
         password: form.password
       }, 1);
-      
     } else if (currentStep === 2) {
       if (!form.role) {
         dispatch(showToast({ message: "Please select your role.", type: "error" }));
         return;
       }
       
-      sendToBackend({ role: form.role }, 2);
-      
+      sendToBackend({ 
+        email: form.email,
+        role: form.role 
+      }, 2);
     } else if (currentStep === 3) {
       if (!form.phone || !form.street || !form.village || !form.mandal || !form.district || !form.state || !form.pincode) {
         dispatch(showToast({ message: "Please fill all required fields.", type: "error" }));
         return;
       }
       
-      if (form.role === 'provider' && (!form.businessName || form.services.length === 0)) {
-        dispatch(showToast({ message: "Please complete your business information.", type: "error" }));
+      if (form.role === 'provider' && form.services.length === 0) {
+        dispatch(showToast({ message: "Please select at least one service.", type: "error" }));
         return;
       }
       
       sendToBackend({
+        email: form.email,
         phone: form.phone,
-        address: {
-          street: form.street,
-          village: form.village,
-          mandal: form.mandal,
-          district: form.district,
-          state: form.state,
-          pincode: form.pincode
-        },
+        street: form.street,
+        village: form.village,
+        mandal: form.mandal,
+        district: form.district,
+        state: form.state,
+        pincode: form.pincode,
         ...(form.role === 'customer' ? { preferences: form.preferences } : {}),
         ...(form.role === 'provider' ? {
-          businessName: form.businessName,
-          services: form.services,
-          experience: form.experience,
-          availability: form.availability,
-          pricing: form.pricing
+          services: form.services
         } : {})
       }, 3);
     }
@@ -1141,70 +1172,23 @@ export default function MultiStepRegister() {
 
         {form.role === 'provider' && (
           <div className="space-y-6 border-t pt-6">
-            <div className="space-y-4">
-              <input
-                type="text"
-                name="businessName"
-                value={form.businessName}
-                onChange={handleChange}
-                placeholder="Business Name"
-                className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors"
-                required
-              />
-              
-              <div>
-                <h4 className="font-semibold text-gray-800 mb-3">Services You Offer</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  {serviceCategories.map(service => (
-                    <button
-                      key={service}
-                      type="button"
-                      onClick={() => handleMultiSelect('services', service)}
-                      className={`p-3 text-sm rounded-lg border-2 transition-all duration-200 ${
-                        form.services?.includes(service) 
-                          ? 'border-green-500 bg-green-50 text-green-700' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      {service}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  name="experience"
-                  value={form.experience}
-                  onChange={handleChange}
-                  placeholder="Years of Experience"
-                  className="border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors"
-                />
-                <input
-                  type="text"
-                  name="pricing"
-                  value={form.pricing}
-                  onChange={handleChange}
-                  placeholder="Starting Price (₹)"
-                  className="border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors"
-                />
-              </div>
-
-              <div className="flex items-center space-x-4">
-                <span className="text-gray-400 text-xl">⏰</span>
-                <select
-                  name="availability"
-                  value={form.availability}
-                  onChange={handleChange}
-                  className="flex-1 border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors"
-                >
-                  <option value="">Select Availability</option>
-                  <option value="weekdays">Weekdays Only</option>
-                  <option value="weekends">Weekends Only</option>
-                  <option value="flexible">Flexible Hours</option>
-                  <option value="24x7">24/7 Available</option>
-                </select>
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3">Services You Offer</h4>
+              <div className="grid grid-cols-2 gap-3">
+                {serviceCategories.map(service => (
+                  <button
+                    key={service}
+                    type="button"
+                    onClick={() => handleMultiSelect('services', service)}
+                    className={`p-3 text-sm rounded-lg border-2 transition-all duration-200 ${
+                      form.services?.includes(service) 
+                        ? 'border-green-500 bg-green-50 text-green-700' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    {service}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
