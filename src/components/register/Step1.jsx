@@ -5,8 +5,23 @@ import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
- 
- export default function RenderStep1({handleChange})
+import {
+  setCurrentStep,
+  setCompletedSteps,
+  setShowPassword,
+  updateForm,
+  setOtpSent,
+  setResendTimer,
+  setOtpValid,
+  setGeneratedOtp,
+  setLoading,
+  showToast,
+  removeToast
+} from "../../store/slices/formSlice";
+import {sendOtp,validateEmail,validatePassword} from "../../utils";
+
+
+ export default function RenderStep1({handleChange,handleStepSubmit})
  { 
 
   const { 
@@ -66,17 +81,19 @@ import { useSelector, useDispatch } from 'react-redux';
           />
           {otpValid === true && <AiOutlineCheckCircle className="text-green-600 text-2xl" />}
           {otpValid === false && <span className="text-red-500 text-sm font-medium">Invalid</span>}
+
           <button
             type="button"
             onClick={sendOtp}
-            className=" px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="w-[50px] md:w-auto px-3 md:px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             disabled={resendTimer > 0 || otpValid === true}
           >
             {resendTimer > 0 ? `${resendTimer}s` : "OTP"}
           </button>
+
+
         </div>
       </div>
-
       {otpSent && (
         <div className="space-y-4 animate-fadeIn">
           <div className="flex gap-3">
