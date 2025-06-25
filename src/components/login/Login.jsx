@@ -22,10 +22,8 @@ export default function Login() {
     if (!password) return toast.error("Password is required.");
 
     try {
-      // ✅ Changed: use correct API endpoint based on selected role
-      const endpoint = role === "customer"
-        ? "http://localhost:8080/api/customer/login"
-        : "http://localhost:8080/api/provider/login";
+      
+      const endpoint = "http://localhost:8080/api/customer/login";
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -65,16 +63,6 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* ✅ NEW: Role selection dropdown */}
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="customer">Customer</option>
-            <option value="provider">Service Provider</option>
-          </select>
-
           <input
             type="email"
             value={email}

@@ -43,7 +43,7 @@ export const sendOtp = (form, dispatch, setGeneratedOtp, setOtpSent, setResendTi
 
 // utils/index.js
 export const call_to_register = async (form, step, dispatch, completedSteps, navigate) => {
-  const BASE_URL = 'http://localhost:8080';
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
   dispatch(setLoading(true));
   try {
     let endpoint = "";
@@ -57,7 +57,9 @@ export const call_to_register = async (form, step, dispatch, completedSteps, nav
         lastName: form.lastName,
         password: form.password
       };
-    } else if (step === 2) {
+    } 
+    else if (step === 2) 
+      {
       endpoint = "/api/user/role";
       payload = {
         email: form.email,
