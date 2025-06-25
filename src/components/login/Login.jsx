@@ -1,19 +1,14 @@
 import React, { useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  // NEW: Add role selection (customer or service provider)
-  const [role, setRole] = useState("customer"); // default to 'customer'
-
-  const validateEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,9 +17,8 @@ export default function Login() {
     if (!password) return toast.error("Password is required.");
 
     try {
+      const endpoint = ""http://localhost:8080/api/login";
       
-      const endpoint = "http://localhost:8080/api/customer/login";
-
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -32,9 +26,17 @@ export default function Login() {
       });
 
       const data = await res.json();
+
       if (res.ok) {
         toast.success("Logged in successfully!");
-        // You can redirect or store login info here
+        localStorage.setItem("userEmail", data.email);
+        localStorage.setItem("userRole", data.role);
+
+        setTimeout(() => {
+          if (data.role === "customer") navigate("/home");
+          else if (data.role === "provider") navigate("/home1");
+          else toast.error("Invalid role received.");
+        }, 1000);
       } else {
         toast.error(data.message || "Login failed!");
       }
