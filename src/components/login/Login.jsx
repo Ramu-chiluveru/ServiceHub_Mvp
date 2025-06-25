@@ -17,7 +17,7 @@ export default function Login() {
     if (!password) return toast.error("Password is required.");
 
     try {
-      const endpoint = ""http://localhost:8080/api/login";
+      const endpoint = "http://localhost:8080/api/login";
       
       const res = await fetch(endpoint, {
         method: "POST",

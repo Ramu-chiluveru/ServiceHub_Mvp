@@ -235,32 +235,6 @@ const ServiceProviderDashboard = () => {
     </button>
   );
 
-  const StatusBar = () => (
-    <div className="flex items-center justify-between text-xs text-gray-500 mb-4 px-2">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1">
-          <Signal size={12} className="text-green-500" />
-          <span>Strong</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Wifi size={12} className="text-green-500" />
-          <span>Connected</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Battery size={12} className="text-green-500" />
-          <span>89%</span>
-        </div>
-      </div>
-      <div className="font-medium">
-        {currentTime.toLocaleTimeString('en-IN', { 
-          hour: '2-digit', 
-          minute: '2-digit',
-          hour12: true 
-        })}
-      </div>
-    </div>
-  );
-
   const MiniChart = ({ data }) => (
     <div className="flex items-end gap-1 h-8">
       {data.map((value, index) => (
@@ -284,10 +258,9 @@ const ServiceProviderDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 my-20">
       {/* Status Bar */}
       <div className="max-w-6xl mx-auto px-4 pt-2">
-        <StatusBar />
       </div>
 
       {/* Enhanced Navigation Tabs */}
