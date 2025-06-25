@@ -17,7 +17,8 @@ export default function Login() {
     if (!password) return toast.error("Password is required.");
 
     try {
-      const endpoint = "http://localhost:8080/api/login";
+      const BASE_URL = import.meta.env.VITE_BASE_URL;
+      const endpoint = `${BASE_URL}/api/login`;
       
       const res = await fetch(endpoint, {
         method: "POST",
@@ -31,10 +32,11 @@ export default function Login() {
         toast.success("Logged in successfully!");
         localStorage.setItem("userEmail", data.email);
         localStorage.setItem("userRole", data.role);
+        Cookies.set('userEmail',data.email,{expires: 7});
+        Cookies.set('userType',data.role, { expires: 7 });
 
         setTimeout(() => {
-          if (data.role === "customer") navigate("/home");
-          else if (data.role === "provider") navigate("/home1");
+          if(data.role) navigate("/home");
           else toast.error("Invalid role received.");
         }, 1000);
       } else {
