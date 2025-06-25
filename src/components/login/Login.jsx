@@ -1,19 +1,14 @@
 import React, { useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  // NEW: Add role selection (customer or service provider)
-  const [role, setRole] = useState("customer"); // default to 'customer'
-
-  const validateEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,21 +17,24 @@ export default function Login() {
     if (!password) return toast.error("Password is required.");
 
     try {
-      // ✅ Changed: use correct API endpoint based on selected role
-      const endpoint = role === "customer"
-        ? "http://localhost:8080/api/customer/login"
-        : "http://localhost:8080/api/provider/login";
-
-      const res = await fetch(endpoint, {
+      const res = await fetch("http://localhost:8080/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
       });
 
       const data = await res.json();
+
       if (res.ok) {
         toast.success("Logged in successfully!");
-        // You can redirect or store login info here
+        localStorage.setItem("userEmail", data.email);
+        localStorage.setItem("userRole", data.role);
+
+        setTimeout(() => {
+          if (data.role === "customer") navigate("/home");
+          else if (data.role === "provider") navigate("/home1");
+          else toast.error("Invalid role received.");
+        }, 1000);
       } else {
         toast.error(data.message || "Login failed!");
       }
@@ -65,16 +63,6 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* ✅ NEW: Role selection dropdown */}
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="customer">Customer</option>
-            <option value="provider">Service Provider</option>
-          </select>
-
           <input
             type="email"
             value={email}
