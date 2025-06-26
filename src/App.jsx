@@ -10,6 +10,7 @@ import HelpCentre from "./components/header/helpcentre";
 import Notification from "./components/header/Notification";
 import Setting from "./components/header/settings";
 import ProtectedHomeRoute from "./utils/ProtectedHomeRoute";
+import ServiceProviderDashboard from "./components/ProviderHomepage/ServiceProviderDashboard";
 
 const App = () => (
       <BrowserRouter>
@@ -24,6 +25,7 @@ const App = () => (
           <Route path='/settings' element={<Setting/>}/>
           <Route path='/notifications' element={<Notification/>}/>
           <Route path='/help-centre' element={<HelpCentre/>}/>
+          <Route path="/home1" element={<ServiceProviderDashboard/>}/>
         </Routes>
         <Footer/>
       </BrowserRouter>

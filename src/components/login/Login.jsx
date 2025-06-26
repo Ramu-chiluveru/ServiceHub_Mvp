@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -19,7 +20,7 @@ export default function Login() {
     try {
       const BASE_URL = import.meta.env.VITE_BASE_URL;
       const endpoint = `${BASE_URL}/api/login`;
-      
+
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,23 +28,30 @@ export default function Login() {
       });
 
       const data = await res.json();
+      console.log("Login response:", data);
 
       if (res.ok) {
         toast.success("Logged in successfully!");
+
+        // Store in localStorage
         localStorage.setItem("userEmail", data.email);
         localStorage.setItem("userRole", data.role);
-        Cookies.set('userEmail',data.email,{expires: 7});
-        Cookies.set('userType',data.role, { expires: 7 });
 
+        // Store in cookies
+        Cookies.set("userEmail", data.email, { expires: 7 });
+        Cookies.set("userType", data.role, { expires: 7 });
+
+        // Redirect based on role
         setTimeout(() => {
-          if(data.role) navigate("/home");
+          if (data.role === "customer") navigate("/home");
+          else if (data.role === "provider") navigate("/home1");
           else toast.error("Invalid role received.");
         }, 1000);
       } else {
         toast.error(data.message || "Login failed!");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Login error:", error);
       toast.error("Server error!");
     }
   };
