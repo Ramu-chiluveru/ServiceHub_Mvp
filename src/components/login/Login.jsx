@@ -3,6 +3,7 @@ import { toast, Toaster } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
 import Cookies from 'js-cookie';
 import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -19,6 +20,7 @@ export default function Login() {
 
     try {
       const BASE_URL = import.meta.env.VITE_BASE_URL;
+
       const endpoint = `${BASE_URL}/api/auth/login`;
       
       const res = await fetch(endpoint, {
@@ -28,22 +30,32 @@ export default function Login() {
       });
 
       const data = await res.json();
-      console.log(data);
+
+      console.log("Login response:", data);
 
       if (res.ok) 
       {
         toast.success("Logged in successfully!");
+
+        // Store in localStorage
+        localStorage.setItem("userEmail", data.email);
+        localStorage.setItem("userRole", data.role);
+
+        // Store in cookies
         Cookies.set('token', data.token, { expires: 7, sameSite: 'Lax' });
         Cookies.set('email', data.email, { expires: 7, sameSite: 'Lax' });
         Cookies.set('role', data.role, { expires: 7, sameSite: 'Lax' });
 
+        // Redirect based on role
+        setTimeout(() => {
+          navigate("/home");
+        }, 1000);
 
-        navigate("/home");
       } else {
         toast.error(data.message || "Login failed!");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Login error:", error);
       toast.error("Server error!");
     }
   };

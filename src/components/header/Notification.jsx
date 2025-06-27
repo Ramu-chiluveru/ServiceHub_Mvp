@@ -1,12 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Check, X, Clock, AlertCircle } from 'lucide-react';
+import { Bell, Check, X, Clock, AlertCircle, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import  Cookies from 'js-cookie';
+
+// Default sample notifications data
+const defaultNotifications = [
+  {
+    _id: '1',
+    title: 'New Service Request',
+    message: 'You have a new AC repair request from John D.',
+    type: 'alert',
+    read: false,
+    createdAt: new Date(Date.now() - 3600000).toISOString() // 1 hour ago
+  },
+  {
+    _id: '2',
+    title: 'Appointment Reminder',
+    message: 'Your electrical service appointment is tomorrow at 2 PM',
+    type: 'reminder',
+    read: false,
+    createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+  },
+  {
+    _id: '3',
+    title: 'Payment Received',
+    message: 'Your payment of ₹1200 for plumbing service has been processed',
+    type: 'info',
+    read: true,
+    createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+  },
+  {
+    _id: '4',
+    title: 'Service Rating',
+    message: 'Customer rated your recent service 5 stars!',
+    type: 'info',
+    read: false,
+    createdAt: new Date(Date.now() - 259200000).toISOString() // 3 days ago
+  },
+  {
+    _id: '5',
+    title: 'System Maintenance',
+    message: 'Scheduled maintenance on Friday from 10 PM to 12 AM',
+    type: 'reminder',
+    read: true,
+    createdAt: new Date(Date.now() - 432000000).toISOString() // 5 days ago
+  }
+];
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [useSampleData, setUseSampleData] = useState(false);
   const navigate = useNavigate();
   const userEmail = Cookies.get("email");
 
@@ -31,7 +76,10 @@ export default function NotificationsPage() {
         const data = await response.json();
         setNotifications(data);
       } catch (err) {
-        setError(err.message);
+        // If API fails, use sample data
+        setNotifications(defaultNotifications);
+        setUseSampleData(true);
+        setError('Could not connect to server. Showing sample notifications.');
       } finally {
         setLoading(false);
       }
@@ -40,50 +88,9 @@ export default function NotificationsPage() {
     fetchNotifications();
   }, [userEmail, navigate]);
 
-  const markAsRead = async (notificationId) => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/notifications/${notificationId}/read`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to mark notification as read');
-      }
-      
-      setNotifications(notifications.map(notification => 
-        notification._id === notificationId 
-          ? { ...notification, read: true } 
-          : notification
-      ));
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const deleteNotification = async (notificationId) => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/notifications/${notificationId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete notification');
-      }
-      
-      setNotifications(notifications.filter(notification => notification._id !== notificationId));
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+  // ... rest of your existing functions (markAsRead, deleteNotification)
 
   if (loading) return <div className="min-h-screen pt-16 flex justify-center items-center">Loading...</div>;
-  if (error) return <div className="min-h-screen pt-16 flex justify-center items-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="min-h-screen pt-16 bg-gray-50">
@@ -93,17 +100,36 @@ export default function NotificationsPage() {
             <Bell className="h-6 w-6 mr-2 text-blue-600" />
             Notifications
           </h1>
-          <button 
-            onClick={() => {
-              // Mark all as read API call would go here
-              setNotifications(notifications.map(n => ({ ...n, read: true })));
-            }}
-            className="text-sm text-blue-600 hover:text-blue-800"
-          >
-            Mark all as read
-          </button>
+          <div className="flex items-center space-x-4">
+            {useSampleData && (
+              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                Using Sample Data
+              </span>
+            )}
+            <button 
+              onClick={() => {
+                setNotifications(notifications.map(n => ({ ...n, read: true })));
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              Mark all as read
+            </button>
+          </div>
         </div>
         
+        {error && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-yellow-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {notifications.length === 0 ? (
           <div className="bg-white rounded-xl shadow-md p-6 text-center">
             <Bell className="h-12 w-12 mx-auto text-gray-400 mb-4" />
@@ -126,13 +152,14 @@ export default function NotificationsPage() {
                       <AlertCircle className="h-5 w-5 mt-0.5 mr-3 text-red-500" />
                     )}
                     {notification.type === 'info' && (
-                      <Bell className="h-5 w-5 mt-0.5 mr-3 text-blue-500" />
+                      <Info className="h-5 w-5 mt-0.5 mr-3 text-blue-500" />
                     )}
                     <div>
                       <h3 className="text-sm font-medium text-gray-900">{notification.title}</h3>
                       <p className="text-sm text-gray-500">{notification.message}</p>
                       <p className="text-xs text-gray-400 mt-1">
                         {new Date(notification.createdAt).toLocaleString()}
+                        {useSampleData && ' (sample)'}
                       </p>
                     </div>
                   </div>

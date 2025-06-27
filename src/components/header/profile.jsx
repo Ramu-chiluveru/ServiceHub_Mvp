@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserCircle, Settings, Calendar, Bell, Heart, HelpCircle } from 'lucide-react';
+import { UserCircle, Mail, Phone, CalendarClock, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
@@ -71,70 +71,126 @@ export default function ProfilePage()
     }
   };
 
-  if (loading) return <div className="min-h-screen pt-16 flex justify-center items-center">Loading...</div>;
-  if (error) return <div className="min-h-screen pt-16 flex justify-center items-center text-red-500">Error: {error}</div>;
+  if (loading) return (
+    <div className="min-h-screen flex justify-center items-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="min-h-screen flex justify-center items-center">
+      <div className="bg-red-50 p-6 rounded-lg max-w-md text-center">
+        <h2 className="text-xl font-semibold text-red-600 mb-2">Error loading profile</h2>
+        <p className="text-red-500">{error}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen pt-16 bg-gray-50">
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-white rounded-xl shadow-md overflow-hidden p-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex flex-col items-center">
-              <div className="w-32 h-32 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <UserCircle className="h-16 w-16 text-blue-600" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* Profile Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              <div className="relative">
+                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
+                  <UserCircle className="h-16 w-16" />
+                </div>
+                <button 
+                  onClick={() => navigate('/settings')}
+                  className="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors"
+                >
+                  <Edit className="h-5 w-5 text-blue-600" />
+                </button>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800">{user.firstName} {user.lastName}</h2>
-              <p className="text-gray-500">{user.email}</p>
-              <button 
-                className="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium"
-                onClick={() => navigate('/settings')}
-              >
-                Edit Profile
-              </button>
+              <div className="text-center sm:text-left">
+                <h1 className="text-2xl font-bold">{user.firstName} {user.lastName}</h1>
+                <p className="text-blue-100">{user.email}</p>
+              </div>
             </div>
-            
-            <div className="flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-medium text-gray-700 mb-2">Personal Information</h3>
-                  <p className="text-sm text-gray-600"><span className="font-medium">Name:</span> {user.firstName} {user.lastName}</p>
-                  <p className="text-sm text-gray-600"><span className="font-medium">Email:</span> {user.email}</p>
-                  <p className="text-sm text-gray-600"><span className="font-medium">Phone:</span> {user.mobileNumber || 'Not provided'}</p>
-                </div>
-                
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-medium text-gray-700 mb-2">Account Details</h3>
-                  <p className="text-sm text-gray-600"><span className="font-medium">Member since:</span> {new Date(user.createdAt).toLocaleDateString()}</p>
-                  <p className="text-sm text-gray-600"><span className="font-medium">Last updated:</span> {new Date(user.updatedAt).toLocaleDateString()}</p>
-                </div>
+          </div>
+          
+          {/* Profile Details */}
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Personal Information */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">Personal Information</h2>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <UserCircle className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Full Name</p>
+                      <p className="font-medium">{user.firstName} {user.lastName}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Mail className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Email</p>
+                      <p className="font-medium">{user.email}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Phone className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Phone</p>
+                      <p className="font-medium">{user.mobileNumber || 'Not provided'}</p>
+                    </div>
+                  </div>
               </div>
               
-              <div className="mt-6">
-                <h3 className="font-medium text-gray-700 mb-3">Quick Actions</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  <button 
-                    onClick={() => navigate('/my-bookings')}
-                    className="flex items-center justify-center gap-2 bg-blue-50 text-blue-600 p-3 rounded-lg hover:bg-blue-100"
-                  >
-                    <Calendar className="h-5 w-5" />
-                    <span>Bookings</span>
-                  </button>
-                  <button 
-                    onClick={() => navigate('/favorites')}
-                    className="flex items-center justify-center gap-2 bg-pink-50 text-pink-600 p-3 rounded-lg hover:bg-pink-100"
-                  >
-                    <Heart className="h-5 w-5" />
-                    <span>Favorites</span>
-                  </button>
-                  <button 
-                    onClick={() => navigate('/settings')}
-                    className="flex items-center justify-center gap-2 bg-gray-100 text-gray-700 p-3 rounded-lg hover:bg-gray-200"
-                  >
-                    <Settings className="h-5 w-5" />
-                    <span>Settings</span>
-                  </button>
+              {/* Account Information */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">Account Information</h2>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-100 rounded-lg">
+                      <CalendarClock className="h-5 w-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Member Since</p>
+                      <p className="font-medium">{new Date(user.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-100 rounded-lg">
+                      <CalendarClock className="h-5 w-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Last Updated</p>
+                      <p className="font-medium">{new Date(user.updatedAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+            
+            {/* Call to Action */}
+            <div className="mt-8 flex justify-center">
+              <button
+                onClick={() => navigate('/settings')}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              >
+                <Edit className="h-4 w-4" />
+                Edit Profile
+              </button>
             </div>
           </div>
         </div>
