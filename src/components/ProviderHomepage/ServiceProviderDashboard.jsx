@@ -6,7 +6,7 @@ import {
   Navigation, Battery, Wifi, Signal, BarChart3, Filter, Search, 
   Menu, X, Map, Camera, FileText, Download, Upload, Eye, Edit, 
   Plus, Minus, RefreshCw, AlertCircle, ThumbsUp, Shield, Truck, 
-  Timer, Activity
+  Timer, Activity, Info
 } from 'lucide-react';
 
 // Import your separate tab components

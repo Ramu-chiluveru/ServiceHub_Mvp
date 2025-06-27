@@ -47,14 +47,14 @@ export default function RenderStep2()
       
       <div className="grid grid-cols-1 gap-4">
         <div 
-          onClick={() => dispatch(updateForm({ role: 'customer' }))}
+          onClick={() => dispatch(updateForm({ role: 'CUSTOMER' }))}
           className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${
-            form.role === 'customer' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+            form.role === 'CUSTOMER' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
           }`}
         >
           <div className="flex items-center space-x-4">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              form.role === 'customer' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
+              form.role === 'CUSTOMER' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
             }`}>
               <span className="text-xl">👤</span>
             </div>
@@ -66,14 +66,14 @@ export default function RenderStep2()
         </div>
         
         <div 
-          onClick={() => dispatch(updateForm({ role: 'provider' }))}
+          onClick={() => dispatch(updateForm({ role: 'PROVIDER' }))}
           className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${
-            form.role === 'provider' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'
+            form.role === 'PROVIDER' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'
           }`}
         >
           <div className="flex items-center space-x-4">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              form.role === 'provider' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
+              form.role === 'PROVIDER' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
             }`}>
               <span className="text-xl">🏢</span>
             </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, ChevronRight, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import  Cookies from 'js-cookie';
 
 // Default sample bookings data
 const defaultBookings = [
@@ -55,7 +56,7 @@ export default function MyBookingsPage() {
   const [error, setError] = useState(null);
   const [useSampleData, setUseSampleData] = useState(false);
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem('userEmail');
+  const userEmail = Cookies.get("email");
 
   useEffect(() => {
     if (!userEmail) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Check, X, Clock, AlertCircle, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import  Cookies from 'js-cookie';
 
 // Default sample notifications data
 const defaultNotifications = [
@@ -52,7 +53,7 @@ export default function NotificationsPage() {
   const [error, setError] = useState(null);
   const [useSampleData, setUseSampleData] = useState(false);
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem('userEmail');
+  const userEmail = Cookies.get("email");
 
   useEffect(() => {
     if (!userEmail) {
