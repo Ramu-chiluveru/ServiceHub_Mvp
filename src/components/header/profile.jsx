@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { UserCircle, Settings, Calendar, Bell, Heart, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
-export default function ProfilePage() {
+export default function ProfilePage() 
+{
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem('userEmail');
+  const userEmail = Cookies.get('email');
+
+  let BASE_URL = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
     if (!userEmail) {
@@ -15,9 +19,12 @@ export default function ProfilePage() {
       return;
     }
 
+    BASE_URL = `${BASE_URL}/api/user`;
+    let endpoint = `${BASE_URL}/profile/${userEmail}`;
+
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/user/profile/${userEmail}`, {
+        const response = await fetch(endpoint, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -28,6 +35,7 @@ export default function ProfilePage() {
         }
         
         const data = await response.json();
+        console.log(data);
         setUser(data);
       } catch (err) {
         setError(err.message);
@@ -40,8 +48,9 @@ export default function ProfilePage() {
   }, [userEmail, navigate]);
 
   const handleUpdateProfile = async (updatedData) => {
+    endpoint = `${BASE_URL}/update/${userEmail}`;
     try {
-      const response = await fetch(`http://localhost:8080/api/user/update/${userEmail}`, {
+      const response = await fetch(endpoint, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -55,6 +64,7 @@ export default function ProfilePage() {
       }
       
       const data = await response.json();
+      console.log(data);
       setUser(data);
     } catch (err) {
       setError(err.message);
@@ -89,7 +99,7 @@ export default function ProfilePage() {
                   <h3 className="font-medium text-gray-700 mb-2">Personal Information</h3>
                   <p className="text-sm text-gray-600"><span className="font-medium">Name:</span> {user.firstName} {user.lastName}</p>
                   <p className="text-sm text-gray-600"><span className="font-medium">Email:</span> {user.email}</p>
-                  <p className="text-sm text-gray-600"><span className="font-medium">Phone:</span> {user.phone || 'Not provided'}</p>
+                  <p className="text-sm text-gray-600"><span className="font-medium">Phone:</span> {user.mobileNumber || 'Not provided'}</p>
                 </div>
                 
                 <div className="bg-gray-50 p-4 rounded-lg">

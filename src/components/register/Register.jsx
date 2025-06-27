@@ -20,7 +20,7 @@ import {
 } from "../../store/slices/formSlice";
 
 import RenderStep1 from "./Step1";
-import RenderStep2 from "./step2";
+import RenderStep2 from "./Step2";
 import RenderStep3 from "./Step3";
 import StepIndicator from "./Indicator";
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Lock, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import  Cookies from 'js-cookie';
 
 export default function SettingsPage() {
   const [user, setUser] = useState({
@@ -16,7 +17,7 @@ export default function SettingsPage() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem('userEmail');
+  const userEmail = Cookies.get("email");
 
   useEffect(() => {
     if (!userEmail) {

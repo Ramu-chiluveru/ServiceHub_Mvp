@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import  Cookies from 'js-cookie';
 
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem('userEmail');
+  const userEmail = Cookies.get("email");
 
   useEffect(() => {
     if (!userEmail) {

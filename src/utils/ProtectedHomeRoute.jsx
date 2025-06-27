@@ -3,15 +3,23 @@ import { Navigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import CustomerHome from "../components/CustomerHomepage/Home";
 import ServiceProviderDashboard from '../components/ProviderHomepage/ServiceProviderDashboard';
+import { useState,useEffect } from 'react';
 
 const ProtectedHomeRoute = () => {
-  const userType = Cookies.get('userType');
+  
+  const role = Cookies.get('role');
 
-  if (userType === 'customer') {
+  console.log(role);
+
+  if (role === 'CUSTOMER') 
+  {
     return <CustomerHome/>;
-  } else if (userType === 'provider') {
+  } 
+  else if (role === 'PROVIDER') 
+  {
     return <ServiceProviderDashboard />;
-  } else {
+  } 
+  else {
     return <Navigate to="/login" />;
   }
 };

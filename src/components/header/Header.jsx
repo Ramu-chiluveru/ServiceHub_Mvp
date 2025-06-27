@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { User, Settings, LogOut, UserCircle, Bell, Heart, Calendar, HelpCircle } from 'lucide-react';
+import Cookies from 'js-cookie';
 
-export default function Header() {
+export default function Header() 
+{
   const location = useLocation();
   const navigate = useNavigate();
   const profileRef = useRef(null);
@@ -10,13 +12,15 @@ export default function Header() {
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const userEmail = localStorage.getItem('userEmail');
+  const userEmail = Cookies.get('email');
   const isLoggedIn = !!userEmail;
+
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/user/profile/${userEmail}`);
+        const res = await fetch(`${BASE_URL}/api/user/profile/${userEmail}`);
         if (!res.ok) throw new Error("Failed to fetch user profile");
 
         const data = await res.json();
@@ -51,7 +55,9 @@ export default function Header() {
       case 'notifications': navigate('/notifications'); break;
       case 'helpcentre': navigate('/help-centre'); break;
       case 'logout':
-        localStorage.clear();
+        Cookies.remove('token', { path: '/' });
+        Cookies.remove('email', { path: '/' });
+        Cookies.remove('role', { path: '/' });
         setUser(null);
         navigate('/login');
         break;
@@ -69,7 +75,7 @@ export default function Header() {
             ServiceHub
           </h1>
 
-          {path === "/" && (
+          {(path === "/" && Cookies.get("email") == undefined) && (
             <>
               <nav className="hidden md:flex space-x-6 ml-10">
                 <a href="#features" className="hover:text-blue-500">How it Works</a>

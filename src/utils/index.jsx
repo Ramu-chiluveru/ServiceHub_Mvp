@@ -1,6 +1,7 @@
 // utils/index.js
 import { useSelector, useDispatch } from 'react-redux';
 import axios from "axios";
+import Cookies from "js-cookie";
 
 import {
   setCurrentStep,
@@ -66,7 +67,7 @@ export const call_to_register = async (form, step, dispatch, completedSteps, nav
         role: form.role
       };
     } else if (step === 3) {
-      endpoint = "/api/user/profile";
+      endpoint = "/api/user/address";
       payload = {
         email: form.email,
         phone: form.phone,
@@ -90,15 +91,19 @@ export const call_to_register = async (form, step, dispatch, completedSteps, nav
       withCredentials: true
     });
 
-    dispatch(showToast({ message: res.message || `Step ${step} completed!`, type: "success" }));
-    dispatch(setCompletedSteps([...completedSteps, step]));
+    console.log(res);
 
     if (step < 3) {
       dispatch(setCurrentStep(step + 1));
     } else {
+      Cookies.set('email', res.data.email, { expires: 7, sameSite: 'Lax' });
+      Cookies.set('role', res.data.role, { expires: 7, sameSite: 'Lax' });
       navigate("/home");
       dispatch(showToast({ message: "Registration completed!", type: "success" }));
     }
+    dispatch(showToast({ message: res.message || `Step ${step} completed!`, type: "success" }));
+    dispatch(setCompletedSteps([...completedSteps, step]));
+
   } catch (error) {
     const message = error?.response?.data || error?.message || "Something went wrong";
     dispatch(showToast({ message, type: "error" }));

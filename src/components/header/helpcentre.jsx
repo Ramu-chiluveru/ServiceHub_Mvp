@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { HelpCircle, Mail, MessageSquare, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import  Cookies from 'js-cookie';
 
 export default function HelpCentrePage() {
   const [activeTab, setActiveTab] = useState('faq');
@@ -10,7 +11,7 @@ export default function HelpCentrePage() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem('userEmail');
+  const userEmail = Cookies.get("email");
 
   const faqs = [
     {

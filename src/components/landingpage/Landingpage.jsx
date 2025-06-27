@@ -1,11 +1,19 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
+import  Cookies from 'js-cookie';
+
 
 export default function Landingpage() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrollX, setScrollX] = useState(0);
+  const navigate = useNavigate();
 
+  if(Cookies.get("email") !== undefined)
+  {
+    navigate("/home");
+  }
+
+   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrollX, setScrollX] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => {
       setScrollX(prev => (prev <= -100 ? 0 : prev - 1));
