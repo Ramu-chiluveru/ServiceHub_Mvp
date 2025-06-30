@@ -56,7 +56,7 @@ export default function MyBookingsPage() {
   const [error, setError] = useState(null);
   const [useSampleData, setUseSampleData] = useState(false);
   const navigate = useNavigate();
-  const userEmail = Cookies.get("email");
+  const userEmail = Cookies.get("token");
 
   useEffect(() => {
     if (!userEmail) {
@@ -68,7 +68,7 @@ export default function MyBookingsPage() {
       try {
         const response = await fetch(`http://localhost:8080/api/bookings/user/${userEmail}`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${Cookies.get('token')}`
           }
         });
         
@@ -106,7 +106,7 @@ export default function MyBookingsPage() {
       const response = await fetch(`http://localhost:8080/api/bookings/${bookingId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${Cookies.get('token')}`
         }
       });
       

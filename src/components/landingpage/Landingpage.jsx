@@ -7,7 +7,7 @@ import  Cookies from 'js-cookie';
 export default function Landingpage() {
   const navigate = useNavigate();
 
-  if(Cookies.get("email") !== undefined)
+  if(phoneCookies.get("token") !== undefined)
   {
     navigate("/home");
   }

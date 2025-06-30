@@ -11,7 +11,7 @@ export default function HelpCentrePage() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const userEmail = Cookies.get("email");
+  const userEmail = Cookies.get("token");
 
   const faqs = [
     {
@@ -46,7 +46,7 @@ export default function HelpCentrePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${Cookies.get('token')}`
         },
         body: JSON.stringify({
           email: userEmail,

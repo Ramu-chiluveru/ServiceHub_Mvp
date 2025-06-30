@@ -53,7 +53,7 @@ export default function NotificationsPage() {
   const [error, setError] = useState(null);
   const [useSampleData, setUseSampleData] = useState(false);
   const navigate = useNavigate();
-  const userEmail = Cookies.get("email");
+  const userEmail = Cookies.get("token");
 
   useEffect(() => {
     if (!userEmail) {
@@ -63,9 +63,9 @@ export default function NotificationsPage() {
 
     const fetchNotifications = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/notifications/${userEmail}`, {
+        const response = await fetch(`http://localhost:8080/api/notifications`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${Cookies.get('token')}`
           }
         });
         
