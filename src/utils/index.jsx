@@ -93,11 +93,12 @@ export const call_to_register = async (form, step, dispatch, completedSteps, nav
 
     console.log(res);
 
-    if (step < 3) {
+    if (step < 3) 
+    {
       dispatch(setCurrentStep(step + 1));
     } else {
-      Cookies.set('email', res.data.email, { expires: 7, sameSite: 'Lax' });
       Cookies.set('role', res.data.role, { expires: 7, sameSite: 'Lax' });
+      Cookies.set('token', res.data.token, { expires: 7, sameSite: 'Lax' });
       navigate("/home");
       dispatch(showToast({ message: "Registration completed!", type: "success" }));
     }

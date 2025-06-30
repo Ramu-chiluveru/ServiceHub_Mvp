@@ -3,7 +3,6 @@ import { toast, Toaster } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
 import Cookies from 'js-cookie';
 import { Link, useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -38,12 +37,11 @@ export default function Login() {
         toast.success("Logged in successfully!");
 
         // Store in localStorage
-        localStorage.setItem("userEmail", data.email);
+        localStorage.setItem("userEmail", data.token);
         localStorage.setItem("userRole", data.role);
 
         // Store in cookies
         Cookies.set('token', data.token, { expires: 7, sameSite: 'Lax' });
-        Cookies.set('email', data.email, { expires: 7, sameSite: 'Lax' });
         Cookies.set('role', data.role, { expires: 7, sameSite: 'Lax' });
 
         // Redirect based on role

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, MapPin, Star, User, Plus, Menu, X, Filter, ChevronDown } from 'lucide-react';
+import PopupForm from './PopupForm';
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -167,6 +168,8 @@ const Home = () => {
 
     return filtered;
   };
+
+  const [plusClicked,setPlusClicked] = useState(false);
 
   const sortedServices = getFilteredAndSortedServices();
 
@@ -362,10 +365,23 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Floating Action Button */}
-      <button className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-40">
-        <Plus className="h-6 w-6" />
-      </button>
+    
+    {plusClicked && (
+      <div onClick={() => setPlusClicked(false)}>
+        <PopupForm onClose={() => setPlusClicked(false)} />
+      </div>
+    )}
+
+
+    <button
+      onClick={() => setPlusClicked(true)}
+      className={`fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 z-40 transform hover:scale-110 active:scale-95 ${
+        plusClicked ? 'rotate-45 bg-red-500' : 'rotate-0'
+      }`}
+    >
+        <Plus className="h-6 w-6 transition-transform duration-300" />
+    </button>
+
     </div>
   );
 };

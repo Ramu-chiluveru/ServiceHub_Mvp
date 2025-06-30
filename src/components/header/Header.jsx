@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { User, Settings, LogOut, UserCircle, Bell, Heart, Calendar, HelpCircle } from 'lucide-react';
+import {
+  User, Settings, LogOut, UserCircle, Bell,
+  Calendar, HelpCircle
+} from 'lucide-react';
 import Cookies from 'js-cookie';
 
-export default function Header() 
-{
+export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const profileRef = useRef(null);
@@ -12,26 +14,10 @@ export default function Header()
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const userEmail = Cookies.get('email');
-  const isLoggedIn = !!userEmail;
+  const token = Cookies.get("token");
+  const isLoggedIn = !!token;
 
   const BASE_URL = import.meta.env.VITE_BASE_URL;
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/api/user/profile/${userEmail}`);
-        if (!res.ok) throw new Error("Failed to fetch user profile");
-
-        const data = await res.json();
-        setUser(data);
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-      }
-    };
-
-    if (isLoggedIn && !user) fetchUser();
-  }, [isLoggedIn, userEmail]);
 
   const handleClickOutside = (e) => {
     if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -40,26 +26,50 @@ export default function Header()
   };
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/user/profile`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch user profile");
+
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error("Error fetching user:", err);
+      }
+    };
+
+    if (isLoggedIn && !user) {
+      fetchUser();
+    }
+  }, [isLoggedIn, token]);
 
   const handleProfileClick = () => setIsProfileOpen(!isProfileOpen);
 
   const handleProfileOption = (option) => {
     setIsProfileOpen(false);
     switch (option) {
-      case 'profile': navigate('/profile'); break;
-      case 'mybookings': navigate('/my-bookings'); break;
-      case 'settings': navigate('/settings'); break;
-      case 'notifications': navigate('/notifications'); break;
-      case 'helpcentre': navigate('/help-centre'); break;
-      case 'logout':
-        Cookies.remove('token', { path: '/' });
-        Cookies.remove('email', { path: '/' });
-        Cookies.remove('role', { path: '/' });
+      case "profile": navigate("/profile"); break;
+      case "mybookings": navigate("/my-bookings"); break;
+      case "myrequests": navigate("/my-requests"); break;
+      case "settings": navigate("/settings"); break;
+      case "notifications": navigate("/notifications"); break;
+      case "helpcentre": navigate("/help-centre"); break;
+      case "logout":
+        Cookies.remove("token");
+        Cookies.remove("role");
         setUser(null);
-        navigate('/login');
+        navigate("/login");
         break;
       default: break;
     }
@@ -71,11 +81,21 @@ export default function Header()
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <h1 className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => navigate("/")}>
+          <h1
+            className="text-2xl font-bold text-blue-600 cursor-pointer"
+            onClick={() => {
+              if(Cookies.get("token"))
+                navigate("/home");
+              else  
+                navigate("/");
+            }
+            }
+          >
             ServiceHub
           </h1>
 
-          {(path === "/" && Cookies.get("email") == undefined) && (
+          {/* Guest Navigation */}
+          {!token && path === "/" && (
             <>
               <nav className="hidden md:flex space-x-6 ml-10">
                 <a href="#features" className="hover:text-blue-500">How it Works</a>
@@ -90,9 +110,13 @@ export default function Header()
             </>
           )}
 
-          {shouldShowProfile && (
+          {/* Logged In Profile */}
+          {shouldShowProfile && isLoggedIn && (
             <div className="flex items-center gap-2 relative" ref={profileRef}>
-              <button onClick={handleProfileClick} className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-colors duration-200">
+              <button
+                onClick={handleProfileClick}
+                className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full"
+              >
                 <User className="h-6 w-6 text-gray-600" />
               </button>
 
@@ -111,15 +135,16 @@ export default function Header()
                   </div>
 
                   <div className="py-1">
-                    <button onClick={() => handleProfileOption('profile')} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><UserCircle className="h-4 w-4" /> View Profile</button>
-                    <button onClick={() => handleProfileOption('mybookings')} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><Calendar className="h-4 w-4" /> My Bookings</button>
-                    <button onClick={() => handleProfileOption('settings')} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><Settings className="h-4 w-4" /> Settings</button>
-                    <button onClick={() => handleProfileOption('notifications')} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><Bell className="h-4 w-4" /> Notifications</button>
-                    <button onClick={() => handleProfileOption('helpcentre')} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><HelpCircle className="h-4 w-4" /> Help Centre</button>
+                    <button onClick={() => handleProfileOption("profile")} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><UserCircle className="h-4 w-4" /> View Profile</button>
+                    <button onClick={() => handleProfileOption("myrequests")} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><Calendar className="h-4 w-4" /> My Requests</button>
+                    <button onClick={() => handleProfileOption("mybookings")} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><Calendar className="h-4 w-4" /> My Bookings</button>
+                    <button onClick={() => handleProfileOption("settings")} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><Settings className="h-4 w-4" /> Settings</button>
+                    <button onClick={() => handleProfileOption("notifications")} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><Bell className="h-4 w-4" /> Notifications</button>
+                    <button onClick={() => handleProfileOption("helpcentre")} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><HelpCircle className="h-4 w-4" /> Help Centre</button>
                   </div>
 
                   <div className="border-t border-gray-100 py-1">
-                    <button onClick={() => handleProfileOption('logout')} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"><LogOut className="h-4 w-4" /> Logout</button>
+                    <button onClick={() => handleProfileOption("logout")} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"><LogOut className="h-4 w-4" /> Logout</button>
                   </div>
                 </div>
               )}

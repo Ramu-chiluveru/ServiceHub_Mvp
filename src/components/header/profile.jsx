@@ -2,31 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { UserCircle, Mail, Phone, CalendarClock, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-
+import { useSelector,useDispatch } from 'react-redux';
 export default function ProfilePage() 
 {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const userEmail = Cookies.get('email');
+  const userEmail = Cookies.get('token');
 
   let BASE_URL = import.meta.env.VITE_BASE_URL;
 
-  useEffect(() => {
-    if (!userEmail) {
+  
+
+   useEffect(() => {
+
+    if (!userEmail) 
+    {
       navigate('/login');
       return;
     }
 
-    BASE_URL = `${BASE_URL}/api/user`;
-    let endpoint = `${BASE_URL}/profile/${userEmail}`;
+    let endpoint = `${BASE_URL}/api/user/profile`;
 
     const fetchUserProfile = async () => {
       try {
         const response = await fetch(endpoint, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${Cookies.get('token')}`
           }
         });
         
@@ -47,14 +50,15 @@ export default function ProfilePage()
     fetchUserProfile();
   }, [userEmail, navigate]);
 
+
   const handleUpdateProfile = async (updatedData) => {
-    endpoint = `${BASE_URL}/update/${userEmail}`;
+    endpoint = `${BASE_URL}/api/user/update`;
     try {
       const response = await fetch(endpoint, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${Cookies.get('token')}`
         },
         body: JSON.stringify(updatedData)
       });
@@ -111,8 +115,8 @@ export default function ProfilePage()
                 </button>
               </div>
               <div className="text-center sm:text-left">
-                <h1 className="text-2xl font-bold">{user.firstName} {user.lastName}</h1>
-                <p className="text-blue-100">{user.email}</p>
+                <h1 className="text-2xl font-bold">{user?.firstName} {user?.lastName}</h1>
+                <p className="text-blue-100">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -130,7 +134,7 @@ export default function ProfilePage()
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Full Name</p>
-                      <p className="font-medium">{user.firstName} {user.lastName}</p>
+                      <p className="font-medium">{user?.firstName} {user?.lastName}</p>
                     </div>
                   </div>
                   
@@ -140,7 +144,7 @@ export default function ProfilePage()
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Email</p>
-                      <p className="font-medium">{user.email}</p>
+                      <p className="font-medium">{user?.email}</p>
                     </div>
                   </div>
                   
@@ -150,7 +154,7 @@ export default function ProfilePage()
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Phone</p>
-                      <p className="font-medium">{user.mobileNumber || 'Not provided'}</p>
+                      <p className="font-medium">{user?.phone || 'Not provided'}</p>
                     </div>
                   </div>
               </div>
@@ -165,7 +169,7 @@ export default function ProfilePage()
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Member Since</p>
-                      <p className="font-medium">{new Date(user.createdAt).toLocaleDateString()}</p>
+                      <p className="font-medium">{new Date(user?.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                   
@@ -175,7 +179,7 @@ export default function ProfilePage()
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Last Updated</p>
-                      <p className="font-medium">{new Date(user.updatedAt).toLocaleDateString()}</p>
+                      <p className="font-medium">{new Date(user?.updatedAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                 </div>
@@ -186,15 +190,16 @@ export default function ProfilePage()
             <div className="mt-8 flex justify-center">
               <button
                 onClick={() => navigate('/settings')}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="px-6 py-2 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
               >
                 <Edit className="h-4 w-4" />
                 Edit Profile
               </button>
             </div>
           </div>
+          </div>
         </div>
-      </div>
+    </div>
     </div>
   );
-}
+  }

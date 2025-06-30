@@ -19,7 +19,7 @@ export default function SettingsPage() {
   const [showPasswordFields, setShowPasswordFields] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const userEmail = Cookies.get("email");
+  const userEmail = Cookies.get("token");
 
   useEffect(() => {
     if (!userEmail) {
@@ -29,9 +29,9 @@ export default function SettingsPage() {
 
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/user/profile/${userEmail}`, {
+        const response = await fetch(`http://localhost:8080/api/user/profile`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${Cookies.get('token')}`
           }
         });
         
@@ -105,11 +105,11 @@ export default function SettingsPage() {
         })
       };
 
-      const response = await fetch(`http://localhost:8080/api/user/update/${userEmail}`, {
+      const response = await fetch(`http://localhost:8080/api/user/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${Cookies.get('token')}`
         },
         body: JSON.stringify(updateData)
       });
