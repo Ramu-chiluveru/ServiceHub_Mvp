@@ -3,7 +3,7 @@ import { CheckCircle, X } from 'lucide-react';
 import Cookies from 'js-cookie';
 
 const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
-  const [servicename, setServicename] = useState('');
+  const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState(null);
@@ -17,12 +17,12 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
   }, []);
 
   const handleSubmit = async() => {
-    if (servicename && description && price) 
+    if (category && description && price) 
     {
       const BASE_URL = import.meta.env.VITE_BASE_URL;
       const endpoint = `${BASE_URL}/api/customer/job`;
       const payload = {
-        requestName:servicename,
+        category:category,
         description:description,
         price:price,
         image:image
@@ -47,7 +47,7 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
       if (onRequestAdded)
       {
         onRequestAdded({
-          servicename,
+          category,
           description,
           price,
           image
@@ -109,10 +109,10 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
             <div className="space-y-4">
               <input
                 type="text"
-                placeholder="Service Name"
+                placeholder="Category"
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                value={servicename}
-                onChange={(e) => setServicename(e.target.value)}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
               />
               <textarea
                 placeholder="Description"

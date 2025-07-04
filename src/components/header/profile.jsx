@@ -13,8 +13,6 @@ export default function ProfilePage()
 
   let BASE_URL = import.meta.env.VITE_BASE_URL;
 
-  
-
    useEffect(() => {
 
     if (!userEmail) 
