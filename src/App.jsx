@@ -31,8 +31,8 @@ const App = () => (
           <Route path="/home" element={<ProtectedHomeRoute />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-bookings" element={<MyBookingsPage />} />
-          <Route path="/my-requests" element={<MyRequests />} />
-          <Route path="/my-requests2" element={<MyRequests2 />} />
+          <Route path="/my-requests" element={<MyRequests2 />} />
+          {/* <Route path="/my-requests2" element={<MyRequests2 />} /> */}
           <Route path="/settings" element={<Setting />} />
           <Route path="/notifications" element={<Notification />} />
           <Route path="/help-centre" element={<HelpCentre />} />
