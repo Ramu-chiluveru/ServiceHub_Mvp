@@ -6,6 +6,7 @@ import SearchFilterSortBar from './SearchFilterSortBar';
 import ErrorBanner from './ErrorBanner';
 import EmptyState from './EmptyState';
 import UserRequestCard from "./ProposalCard";
+import PopupForm from './PopupForm';
 
 import { Calendar,ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -16,20 +17,13 @@ export default function MyRequests2()
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [useSampleData, setUseSampleData] = useState(true);
-
+  const [plusClicked,setPlusClicked] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('completed');
   const [sortBy, setSortBy] = useState('date');
   const [activeTab, setActiveTab] = useState('completed');
   const userEmail = Cookies.get("token");
 
-
-  // pagination
-  const requestsPerPage = 3;
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(requests.length / requestsPerPage);
-  const startIndex = (currentPage - 1) * requestsPerPage;
-  const currentRequests = requests.slice(startIndex, startIndex + requestsPerPage);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -64,6 +58,14 @@ export default function MyRequests2()
         default: return 0;
       }
     });
+  
+  // pagination
+  const requestsPerPage = 3;
+  const [currentPage, setCurrentPage] = useState(1);
+  // const [totalPages,setTotalPages] = useState();
+  const totalPages = Math.ceil(filteredRequests.length / requestsPerPage);
+  const startIndex = (currentPage - 1) * requestsPerPage;
+  const currentRequests = filteredRequests.slice(startIndex, startIndex + requestsPerPage);
 
   const stats = {
     total: requests.length,
@@ -157,6 +159,34 @@ export default function MyRequests2()
           submittedAt: "2024-01-06T10:15:00Z"
         }
       ]
+    },
+    {
+      _id: "req_002",
+      requestId: "REQ-2024-002",
+      category: "gardening",
+      description: "Need to install 3 ceiling fans and fix flickering lights in the living room.",
+      budget: 3500,
+      location: "Gachibowli, Hyderabad",
+      createdAt: "2024-01-05T15:30:00Z",
+      status: "completed",
+      urgency: "normal",
+      completedAt: "2024-01-08T18:00:00Z",
+      acceptedProposal: {
+        id: "prop_5",
+        providerName: "PowerTech Electricals",
+        providerRating: 4.7,
+        finalPrice: 3200
+      },
+      proposals: [
+        {
+          id: "prop_5",
+          providerName: "PowerTech Electricals",
+          providerRating: 4.7,
+          proposedPrice: 3200,
+          message: "Licensed electrician with 10 years experience. Will install premium quality fans and fix all electrical issues.",
+          submittedAt: "2024-01-06T10:15:00Z"
+        }
+      ]
     }
   ];
 
@@ -205,12 +235,19 @@ export default function MyRequests2()
                   Demo Mode
                 </span>
               )}
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg">
+              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                onClick={()=>setPlusClicked(!plusClicked)}
+              >
                 New Request
               </button>
             </div>
           </div>
 
+          {plusClicked && (
+            <div onClick={() => setPlusClicked(false)}>
+              <PopupForm onClose={() => setPlusClicked(false)} />
+            </div>
+          )}
           {/* Stats Cards */}
           <StatsCards stats={stats} />
 
@@ -233,7 +270,7 @@ export default function MyRequests2()
 
         {/* requests */}
         <div className="space-y-6">
-          {requests.map((request) => (
+          {filteredRequests.map((request) => (
             <UserRequestCard
               key={request._id}
               request={request}
@@ -244,6 +281,10 @@ export default function MyRequests2()
             />
         ))}
         </div>
+
+        {
+          filteredRequests.length == 0 && <EmptyState/>
+        }
 
         {/* Pagination Footer */}
         <div className="bg-gradient-to-r from-slate-50 to-indigo-50 px-8 py-6 border-t border-gray-100">

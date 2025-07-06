@@ -56,7 +56,8 @@ export default function Header() {
 
   const handleProfileClick = () => setIsProfileOpen(!isProfileOpen);
 
-  const handleProfileOption = (option) => {
+  const handleProfileOption = (option) => 
+  {
     setIsProfileOpen(false);
     switch (option) {
       case "profile": navigate("/profile"); break;

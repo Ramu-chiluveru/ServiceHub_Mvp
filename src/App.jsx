@@ -15,6 +15,7 @@ import MyRequests from "./components/CustomerHomepage/requestspage/MyRequests";
 import JobDetails from "./components/CustomerHomepage/requestspage/JobDetails";
 import MyBookingsPage from "./components/CustomerHomepage/bookingspage/MyBookings";
 import MyRequests2 from "./components/CustomerHomepage/requestspage/Myrequests2";
+import VoiceChatApp  from "./components/chat";
 
 const App = () => (
   <div className="flex flex-col min-h-screen overflow-y-hidden">
@@ -22,6 +23,7 @@ const App = () => (
       <Header />
       <div className="flex-1 overflow-y-hidden"> {/* Prevent global scroll */}
         <Routes>
+          <Route path="/chat" element={<VoiceChatApp/>}/>
           <Route path="/" element={<Landingpage />} />
           <Route path="/job/:jobId" element={<JobDetails/>}/>
           <Route path="/register" element={<Register />} />
@@ -34,7 +36,7 @@ const App = () => (
           <Route path="/settings" element={<Setting />} />
           <Route path="/notifications" element={<Notification />} />
           <Route path="/help-centre" element={<HelpCentre />} />
-          <Route path="/home1" element={<ServiceProviderDashboard />} />
+          {/* <Route path="/home1" element={<ServiceProviderDashboard />} /> */}
         </Routes>
       </div>
       <Footer />

@@ -38,11 +38,12 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
 
       console.log('res: ',res);
       
-      if (!res.ok) {
-        setStatus('error in request');
+      if (!res.ok) 
+      {
+        setStatus('error');
         return;
       }
-        setStatus('success');
+      setStatus('success');
       
       if (onRequestAdded)
       {
@@ -73,6 +74,20 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
         >
           <X size={24} />
         </button>
+
+        {status === 'error' && 
+          <div>
+            <p className="text-green-700 font-semibold text-lg mb-4">
+              Request Failed
+            </p>
+            <button
+                onClick={onClose}
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors"
+              >
+                Close
+              </button>
+          </div>
+        }
 
         {/* Success UI */}
         {status === 'success' ? (

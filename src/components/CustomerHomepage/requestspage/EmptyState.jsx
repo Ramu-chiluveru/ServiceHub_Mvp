@@ -2,7 +2,7 @@ import React from 'react';
 import { Calendar } from 'lucide-react';
 
 export default function EmptyState({ searchQuery, filterStatus }) {
-  const hasFilters = searchQuery || filterStatus !== 'all';
+  const hasFilters = searchQuery || filterStatus !== 'confirmed';
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-100">
