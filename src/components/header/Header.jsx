@@ -33,7 +33,7 @@ export default function Header() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/api/user/profile`, {
+        const res = await fetch(`${BASE_URL}/api/user/profile`,{
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
