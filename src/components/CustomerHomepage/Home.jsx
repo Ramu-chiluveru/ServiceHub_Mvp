@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Search, MapPin, Star, User, Plus, Menu, X, Filter, ChevronDown } from 'lucide-react';
 import PopupForm from './requestspage/PopupForm';
 
@@ -11,6 +11,7 @@ const Home = () => {
   const [sortBy, setSortBy] = useState('rating');
   const [sortOrder, setSortOrder] = useState('desc');
   const [filteredServices, setFilteredServices] = useState([]);
+  const [isLoading, setLoading] = useState(true);
 
   const serviceCategories = [
     { name: 'Crafts', icon: '🎨' },
@@ -20,6 +21,20 @@ const Home = () => {
     { name: 'Gardeners', icon: '🌱' },
     { name: 'Painters', icon: '🎨' },
   ];
+
+   useEffect(() => {
+      const fetchRequests = async () => {
+        try {
+          setLoading(true);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (err) 
+        {
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchRequests();
+    }, []);
 
   const featuredServices = [
     {
@@ -172,6 +187,19 @@ const Home = () => {
   const [plusClicked,setPlusClicked] = useState(false);
 
   const sortedServices = getFilteredAndSortedServices();
+
+  if(isLoading)
+  {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-3 border-b-3 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-white mt-10">

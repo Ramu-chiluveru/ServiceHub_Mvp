@@ -25,10 +25,13 @@ export default function MyRequests2()
   const userEmail = Cookies.get("token");
 
 
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
   useEffect(() => {
     const fetchRequests = async () => {
       try {
         setLoading(true);
+        // const response = await fetch(`${BASE_URL}/`)
         await new Promise(resolve => setTimeout(resolve, 1000));
         setRequests(sampleRequests);
         setUseSampleData(true);
@@ -47,7 +50,7 @@ export default function MyRequests2()
     .filter(b => {
       const matchesSearch = b.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             b.providerName?.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesStatus = filterStatus === 'all' || b.status === filterStatus;
+      const matchesStatus = b.status === filterStatus;
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
