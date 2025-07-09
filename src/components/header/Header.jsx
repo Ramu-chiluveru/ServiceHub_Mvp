@@ -56,7 +56,8 @@ export default function Header() {
 
   const handleProfileClick = () => setIsProfileOpen(!isProfileOpen);
 
-  const handleProfileOption = (option) => {
+  const handleProfileOption = (option) => 
+  {
     setIsProfileOpen(false);
     switch (option) {
       case "profile": navigate("/profile"); break;
@@ -75,7 +76,7 @@ export default function Header() {
     }
   };
 
-  const shouldShowProfile = isLoggedIn && !["/", "/login", "/register"].includes(path);
+  const shouldShowProfile = isLoggedIn && !["/", "/login", "/register"].includes(path) && Cookies.get('role') === 'CUSTOMER';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">

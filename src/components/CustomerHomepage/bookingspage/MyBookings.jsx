@@ -118,7 +118,7 @@ export default function MyBookingsPage() {
   const [useSampleData, setUseSampleData] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('completed');
   const [sortBy, setSortBy] = useState('date');
   const [activeTab, setActiveTab] = useState('completed');
   const userEmail = Cookies.get("token");
@@ -153,7 +153,7 @@ export default function MyBookingsPage() {
       const matchesSearch = b.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             b.technician?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             b.location.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = filterStatus === 'all' || b.status === filterStatus;
+      const matchesStatus =  b.status === filterStatus;
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
