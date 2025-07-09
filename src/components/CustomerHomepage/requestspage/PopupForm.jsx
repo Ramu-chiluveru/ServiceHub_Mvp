@@ -8,6 +8,7 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
   const [price, setPrice] = useState('');
   const [image, setImage] = useState(null);
   const [status, setStatus] = useState(null);
+  const token = Cookies.get('token');
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -31,7 +32,7 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
         method: 'POST',
         headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${Cookies.get('token')}`
+                    'Authorization': `Bearer ${token}`
                   },
         body: JSON.stringify(payload)
       });

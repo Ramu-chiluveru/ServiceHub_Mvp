@@ -43,7 +43,7 @@ const ProposalCard = ({ proposal, onAccept, requestStatus, formatDate }) => {
         <span className="text-gray-500 text-xs">
           {formatDate(proposal.submittedAt)}
         </span>
-        {requestStatus === 'pending' && (
+        {requestStatus.toLowerCase() === 'pending' && (
           <button
             onClick={onAccept}
             className="bg-green-500 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-green-600 transition-colors text-xs flex items-center gap-1"
@@ -68,10 +68,12 @@ const UserRequestCard = ({
   const [showProposals, setShowProposals] = useState(false);
   const navigate = useNavigate();
   const {
-    _id, category, description, budget, location, createdAt, 
+    id, category, description, price, location, createdAt, 
     status, urgency, proposals = [], acceptedProposal, 
     completedAt, requestId
   } = request;
+
+  console.log(`request: ${JSON.stringify(request)}`);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -128,7 +130,7 @@ const UserRequestCard = ({
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900">{category}</h3>
                   <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                    {requestId}
+                    {id}
                   </span>
                 </div>
               </div>
@@ -159,7 +161,7 @@ const UserRequestCard = ({
               <div className="space-y-2 text-sm text-gray-600">
                 <div className="flex items-center">
                   <DollarSign className="h-4 w-4 mr-2 text-purple-500" />
-                  <span>Budget: ₹{budget}</span>
+                  <span>Budget: ₹{price}</span>
                 </div>
                 {status === 'completed' && acceptedProposal && (
                   <div className="flex items-center">
@@ -192,10 +194,8 @@ const UserRequestCard = ({
           </div>
 
           <div className="ml-6 text-right">
-            <p className="text-2xl font-bold text-gray-900">₹{budget}</p>
-            <p className="text-xs text-gray-500">Budget</p>
             {status === 'completed' && acceptedProposal && (
-              <p className="text-sm text-green-600 font-semibold mt-1">
+              <p className="text-lg text-green-600 font-semibold mt-1">
                 Final: ₹{acceptedProposal.finalPrice}
               </p>
             )}

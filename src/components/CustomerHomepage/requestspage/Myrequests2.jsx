@@ -22,22 +22,35 @@ export default function MyRequests2()
   const [filterStatus, setFilterStatus] = useState('completed');
   const [sortBy, setSortBy] = useState('date');
   const [activeTab, setActiveTab] = useState('completed');
-  const userEmail = Cookies.get("token");
+  const token = Cookies.get("token");
 
 
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
+    const endpoint = `${BASE_URL}/api/customer/jobs`;
+    console.log(`endpoint: ${endpoint} with token: ${token}`)
     const fetchRequests = async () => {
       try {
         setLoading(true);
-        // const response = await fetch(`${BASE_URL}/`)
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setRequests(sampleRequests);
-        setUseSampleData(true);
+        const response = await fetch(endpoint,{
+          method:"GET",
+           headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+          }
+        });
+
+        console.log('res: ',response);
+        const data = await response.json(); 
+        console.log("Fetched jobs:", data);
+        // await new Promise(resolve => setTimeout(resolve, 1000));
+        setRequests(data);
+        console.log(`requests: `,requests);
+        // setUseSampleData(true);
       } catch (err) {
         setRequests(sampleRequests);
-        setUseSampleData(true);
+        // setUseSampleData(true);
         setError('Could not connect to server. Showing sample requests.');
       } finally {
         setLoading(false);
@@ -50,7 +63,7 @@ export default function MyRequests2()
     .filter(b => {
       const matchesSearch = b.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             b.providerName?.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesStatus = b.status === filterStatus;
+      const matchesStatus = b.status.toLowerCase() === filterStatus;
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -61,6 +74,10 @@ export default function MyRequests2()
         default: return 0;
       }
     });
+
+    // cross checking
+    console.log(`requests: `,requests);
+    console.log(`filtered: ${filteredRequests}`);
   
   // pagination
   const requestsPerPage = 3;
@@ -72,11 +89,11 @@ export default function MyRequests2()
 
   const stats = {
     total: requests.length,
-    confirmed: requests.filter(b => b.status === 'confirmed').length,
-    completed: requests.filter(b => b.status === 'completed').length,
-    cancelled: requests.filter(b => b.status === 'cancelled').length,
-    pending: requests.filter(b => b.status === 'pending').length,
-    totalSpent: requests.filter(b => b.status === 'completed').reduce((sum, b) => sum + b.budget, 0)
+    confirmed: requests?.filter(b => b.status === 'confirmed').length,
+    completed: requests?.filter(b => b.status === 'completed').length,
+    cancelled: requests?.filter(b => b.status === 'cancelled').length,
+    pending: requests?.filter(b => b.status.toLowerCase() === 'pending').length,
+    totalSpent: requests?.filter(b => b.status === 'completed').reduce((sum, b) => sum + b.price, 0)
   };
 
   const handleCancelBooking = (bookingId) => {
@@ -95,7 +112,7 @@ export default function MyRequests2()
       requestId: "REQ-2024-001",
       category: "Plumbing",
       description: "Kitchen sink is leaking and the tap needs replacement. Water pressure is also low in the entire kitchen area.",
-      budget: 2500,
+      price: 2500,
       location: "Banjara Hills, Hyderabad",
       createdAt: "2024-01-10T10:00:00Z",
       status: "pending",
@@ -132,6 +149,14 @@ export default function MyRequests2()
           proposedPrice: 2600,
           message: "Complete plumbing solution with modern tools. We also check for other potential issues and provide maintenance tips.",
           submittedAt: "2024-01-13T11:20:00Z"
+        },
+        {
+          id: "prop_5",
+          providerName: "Home Care Services",
+          providerRating: 4.0,
+          proposedPrice: 2600,
+          message: "Complete plumbing solution with modern tools. We also check for other potential issues and provide maintenance tips.",
+          submittedAt: "2024-01-13T11:20:00Z"
         }
       ]
     },
@@ -140,7 +165,7 @@ export default function MyRequests2()
       requestId: "REQ-2024-002",
       category: "Electrical",
       description: "Need to install 3 ceiling fans and fix flickering lights in the living room.",
-      budget: 3500,
+      price: 3500,
       location: "Gachibowli, Hyderabad",
       createdAt: "2024-01-05T15:30:00Z",
       status: "completed",
@@ -164,11 +189,11 @@ export default function MyRequests2()
       ]
     },
     {
-      _id: "req_002",
-      requestId: "REQ-2024-002",
+      _id: "req_003",
+      requestId: "REQ-2024-003",
       category: "gardening",
       description: "Need to install 3 ceiling fans and fix flickering lights in the living room.",
-      budget: 3500,
+      price: 3500,
       location: "Gachibowli, Hyderabad",
       createdAt: "2024-01-05T15:30:00Z",
       status: "completed",
@@ -233,11 +258,6 @@ export default function MyRequests2()
               <p className="text-gray-600">Manage and track all your service requests</p>
             </div>
             <div className="flex items-center space-x-3 mt-4 lg:mt-0">
-              {useSampleData && (
-                <span className="text-xs bg-amber-100 text-amber-800 px-3 py-1 rounded-full border border-amber-200">
-                  Demo Mode
-                </span>
-              )}
               <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
                 onClick={()=>setPlusClicked(!plusClicked)}
               >
@@ -275,7 +295,7 @@ export default function MyRequests2()
         <div className="space-y-6">
           {filteredRequests.map((request) => (
             <UserRequestCard
-              key={request._id}
+              key={request.id}
               request={request}
               onEdit={handleEdit}
               onClose={handleClose}
