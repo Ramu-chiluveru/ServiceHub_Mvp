@@ -10,6 +10,7 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
   const [priority, setPriority] = useState('');
   const [image, setImage] = useState(null);
   const [status, setStatus] = useState(null);
+  const token = Cookies.get("token");
 
   // Service categories dropdown options
   const categories = [
@@ -30,9 +31,8 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
   // Priority levels for dropdown
   const priorities = [
     { value: 'low', label: 'Low Priority' },
-    { value: 'medium', label: 'Medium Priority' },
-    { value: 'high', label: 'High Priority' },
-    { value: 'urgent', label: 'Urgent' }
+    { value: 'normal', label: 'Medium Priority' },
+    { value: 'high', label: 'High Priority' }
   ];
 
   // Prevent scrolling when modal is open
@@ -45,16 +45,21 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
 
   // Form submission handler
   const handleSubmit = async() => {
-    if (category && description && price && priority) {
+    if (category && description && price && priority) 
+    {
       const BASE_URL = import.meta.env.VITE_BASE_URL;
       const endpoint = `${BASE_URL}/api/customer/job`;
-      const payload = {
+
+      const payload = 
+      {
         category: category,
         description: description,
         price: price,
         priority: priority,
         image: image
       }
+
+      console.log(`payload: ${JSON.stringify(payload)}`);
       
       try {
         const res = await fetch(endpoint, {
