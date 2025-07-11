@@ -6,6 +6,7 @@ import {
   AlertCircle, Package
 } from 'lucide-react';
 import {useNavigate} from 'react-router-dom';
+import PopupForm from './PopupForm';
 
 // ProposalCard Component for displaying individual proposals
 const ProposalCard = ({ proposal, onAccept, requestStatus, formatDate }) => {
@@ -69,7 +70,7 @@ const UserRequestCard = ({
   const navigate = useNavigate();
   const {
     id, category, description, price, location, createdAt, 
-    status, urgency, proposals = [], acceptedProposal, 
+    status, priority, proposals = [], acceptedProposal, 
     completedAt, requestId
   } = request;
 
@@ -86,8 +87,11 @@ const UserRequestCard = ({
     }
   };
 
-  const getUrgencyColor = (urgency) => {
-    switch (urgency) {
+  const [isEdit,setEdit] = useState(false);
+  const [reqId,setReqId] = useState(null);
+
+  const getUrgencyColor = (priority) => {
+    switch (priority) {
       case 'high': return 'text-red-600';
       case 'normal': return 'text-yellow-600';
       case 'low': return 'text-green-600';
@@ -138,9 +142,9 @@ const UserRequestCard = ({
                 <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(status)}`}>
                   {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
                 </span>
-                {urgency && (
-                  <span className={`text-xs font-medium ${getUrgencyColor(urgency)}`}>
-                    {urgency} priority
+                {priority && (
+                  <span className={`text-xs font-medium ${getUrgencyColor(priority)}`}>
+                    {priority} priority
                   </span>
                 )}
               </div>
@@ -163,18 +167,20 @@ const UserRequestCard = ({
                   <DollarSign className="h-4 w-4 mr-2 text-purple-500" />
                   <span>Budget: ₹{price}</span>
                 </div>
-                {status === 'completed' && acceptedProposal && (
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                    <span>Final: ₹{acceptedProposal.finalPrice}</span>
-                  </div>
-                )}
                 <div className="flex items-center">
                   <Package className="h-4 w-4 mr-2 text-orange-500" />
                   <span>{status === 'completed' ? 'Job Completed' : 'Active Request'}</span>
                 </div>
               </div>
             </div>
+
+            {
+              isEdit  && (
+              <div onClick={() => setEdit(false)}>
+                <PopupForm onClose={() => setEdit(false)} reqId={reqId} />
+              </div>
+              )
+            }
 
             {description && (
               <div className="bg-gray-50 rounded-lg p-3 mb-4 text-sm text-gray-700">
@@ -190,14 +196,6 @@ const UserRequestCard = ({
                 </div>
                 <p className="text-xs text-green-600">Job finished on {formatDate(completedAt)}</p>
               </div>
-            )}
-          </div>
-
-          <div className="ml-6 text-right">
-            {status === 'completed' && acceptedProposal && (
-              <p className="text-lg text-green-600 font-semibold mt-1">
-                Final: ₹{acceptedProposal.finalPrice}
-              </p>
             )}
           </div>
         </div>
@@ -231,7 +229,8 @@ const UserRequestCard = ({
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
-                    onEdit && onEdit(_id);
+                    setEdit(true);
+                    setReqId(id);
                   }}
                   className="text-sm text-orange-600 border border-orange-200 px-3 py-1 rounded-md hover:bg-orange-50 transition flex items-center"
                 >
@@ -241,12 +240,12 @@ const UserRequestCard = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onClose && onClose(_id);
+                    onClose({confirm:true,id:id})
                   }}
                   className="text-sm text-red-600 border border-red-200 px-3 py-1 rounded-md hover:bg-red-50 transition flex items-center"
                 >
                   <XCircle className="h-4 w-4 mr-1" />
-                  Close
+                  Cancel
                 </button>
               </>
             )}
@@ -255,9 +254,6 @@ const UserRequestCard = ({
                 Download Invoice
               </button>
             )}
-            <button className="p-1 text-gray-400 hover:text-gray-600 rounded">
-              <MoreVertical className="h-4 w-4" />
-            </button>
           </div>
         </div>
       </div>

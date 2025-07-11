@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, X, Upload, Star, AlertCircle } from 'lucide-react';
 import Cookies from 'js-cookie';
+import { useNavigate ,useLocation} from 'react-router-dom';
 
-const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
+const PopupForm = ({ onClose, onRequestAdded, onViewRequests,reqId }) => {
   // State management for form fields
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
@@ -10,6 +11,11 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
   const [priority, setPriority] = useState('');
   const [image, setImage] = useState(null);
   const [status, setStatus] = useState(null);
+  const location = useLocation();
+  const path = location.pathname;
+  const token = Cookies.get("token");
+  console.log(`requestId: ${reqId}`);
+  const navigate = useNavigate();
 
   // Service categories dropdown options
   const categories = [
@@ -30,9 +36,8 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
   // Priority levels for dropdown
   const priorities = [
     { value: 'low', label: 'Low Priority' },
-    { value: 'medium', label: 'Medium Priority' },
-    { value: 'high', label: 'High Priority' },
-    { value: 'urgent', label: 'Urgent' }
+    { value: 'normal', label: 'Medium Priority' },
+    { value: 'high', label: 'High Priority' }
   ];
 
   // Prevent scrolling when modal is open
@@ -43,22 +48,65 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
     };
   }, []);
 
+  useEffect(() => {
+  const fetchRequestDetails = async () => {
+    if (!reqId) return;
+
+    try {
+      const BASE_URL = import.meta.env.VITE_BASE_URL;
+      const endpoint = `${BASE_URL}/api/customer/job/${reqId}`; // Assuming GET by ID
+
+      const res = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        console.error('Failed to fetch request data');
+        return;
+      }
+
+      const data = await res.json();
+
+      // Prefill form fields from response
+      setCategory(data.category || '');
+      setDescription(data.description || '');
+      setPrice(data.price || '');
+      setPriority(data.priority || '');
+      // You can’t prefill file input (image) due to browser restrictions
+    } catch (error) {
+      console.error('Error fetching request details:', error);
+    }
+  };
+
+  fetchRequestDetails();
+}, [reqId, token]);
+
+
   // Form submission handler
   const handleSubmit = async() => {
-    if (category && description && price && priority) {
+    if (category && description && price && priority) 
+    {
       const BASE_URL = import.meta.env.VITE_BASE_URL;
-      const endpoint = `${BASE_URL}/api/customer/job`;
-      const payload = {
+      const endpoint = reqId != null ? `${BASE_URL}/api/customer/job/${reqId}` : `${BASE_URL}/api/customer/job`;
+
+      const payload = 
+      {
         category: category,
         description: description,
         price: price,
         priority: priority,
         image: image
       }
+
+      console.log(`payload: ${JSON.stringify(payload)}`);
       
       try {
         const res = await fetch(endpoint, {
-          method: 'POST',
+          method: reqId !== null ? 'PUT' : 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -94,6 +142,16 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
   const removeImage = () => {
     setImage(null);
   };
+
+  const handleClick = () => {
+    if (path !== "/my-requests") {
+      navigate("/my-requests");
+    } else {
+      navigate(0);
+    }
+    return;
+  };
+
 
   return (
     <div 
@@ -162,11 +220,7 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
               
               <div className="space-y-3">
                 <button
-                  onClick={() => {
-                    if (onViewRequests) {
-                      onViewRequests();
-                    }
-                  }}
+                  onClick={handleClick}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center"
                 >
                   View My Requests
