@@ -7,6 +7,7 @@ import ErrorBanner from './ErrorBanner';
 import EmptyState from './EmptyState';
 import UserRequestCard from "./ProposalCard";
 import PopupForm from './PopupForm';
+import ConfirmPopup from './ConfirmPopup';
 
 import { Calendar,ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -22,6 +23,11 @@ export default function MyRequests2()
   const [filterStatus, setFilterStatus] = useState('completed');
   const [sortBy, setSortBy] = useState('date');
   const [activeTab, setActiveTab] = useState('completed');
+  const [close,onClose] = useState({
+    confirm : false,
+    id : ''
+  });
+
   const token = Cookies.get("token");
 
 
@@ -46,6 +52,7 @@ export default function MyRequests2()
         console.log("Fetched jobs:", data);
         // await new Promise(resolve => setTimeout(resolve, 1000));
         setRequests(data);
+        // setRequests(sampleRequests);
         console.log(`requests: `,requests);
         // setUseSampleData(true);
       } catch (err) {
@@ -57,7 +64,7 @@ export default function MyRequests2()
       }
     };
     fetchRequests();
-  }, []);
+  }, [close.confirm],plusClicked,onClose,);
 
   const filteredRequests = requests
     .filter(b => {
@@ -219,11 +226,13 @@ export default function MyRequests2()
   ];
 
   const handleEdit = (id) => {
-    console.log('Edit request:', id);
-  };
+    try{
 
-  const handleClose = (id) => {
-    console.log('Close request:', id);
+    }
+    catch(error)
+    {
+      
+    }
   };
 
   const handleAcceptProposal = (requestId, proposalId) => {
@@ -289,6 +298,8 @@ export default function MyRequests2()
 
           {/* Error Banner */}
           {error && <ErrorBanner error={error} />}
+
+          {close.confirm && <ConfirmPopup message={"Are you sure to cancel the request?"} id={close.id} onClose={onClose}/> }
         </div>
 
         {/* requests */}
@@ -298,7 +309,7 @@ export default function MyRequests2()
               key={request.id}
               request={request}
               onEdit={handleEdit}
-              onClose={handleClose}
+              onClose={onClose}
               onAcceptProposal={handleAcceptProposal}
               onViewDetails={handleViewDetails}
             />
