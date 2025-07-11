@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   User, Bell, Search, Map, X, Send, DollarSign, Wrench, Droplets, Wind, Sofa,
-  Zap, Sparkles, PaintBucket, Bug, TreePalm, Shield
+  Zap, Sparkles, PaintBucket, Bug, TreePalm, Shield,MapPin
 } from 'lucide-react';
 import Cookies from "js-cookie";
 
@@ -38,7 +38,7 @@ const RequestsTab = ({
     "home-security": { icon: Shield, color: "from-indigo-500 to-indigo-700", lightColor: "bg-indigo-50" },
     "other": { icon: Wrench, color: "from-slate-400 to-slate-600", lightColor: "bg-slate-50" }
   };
-  
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Search & Filter Section */}
@@ -62,7 +62,7 @@ const RequestsTab = ({
             >
               <option value="all">All Priority</option>
               <option value="high">High Priority</option>
-              <option value="medium">Medium Priority</option>
+              <option value="normal">Medium Priority</option>
               <option value="low">Low Priority</option>
             </select>
             <button
@@ -98,7 +98,7 @@ const RequestsTab = ({
         ) : (
           <div className="space-y-6">
             {filteredJobs.map((job) => {
-              const { icon: Icon, color, lightColor } = serviceIcons[job.service] || serviceIcons["other"];
+              const { icon: Icon, color, lightColor } = serviceIcons[job.category] || serviceIcons["other"];
               const borderColor =
                 job.priority === 'High' ? 'border-red-500' :
                 job.priority === 'Medium' ? 'border-yellow-500' :
@@ -131,7 +131,14 @@ const RequestsTab = ({
                           <User size={16} className="text-gray-400" />
                           <span>{job.customer}</span>
                         </div>
+
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <MapPin size={16} className="text-gray-400" />
+                                <span>{job.location}</span>
+                                {/* <span className="text-gray-400">({job.distance} away)</span> */}
+                              </div>
                       </div>
+                      
 
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
@@ -172,11 +179,11 @@ const RequestsTab = ({
 
               <div className="mb-6 space-y-4">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className={`bg-gradient-to-r ${serviceIcons[selectedJob.service]?.color || "from-gray-500 to-gray-700"} text-white p-3 rounded-lg`}>
-                    {(serviceIcons[selectedJob.service]?.icon || Wrench)({ size: 24 })}
+                  <div className={`bg-gradient-to-r ${serviceIcons[selectedJob.category]?.color || "from-gray-500 to-gray-700"} text-white p-3 rounded-lg`}>
+                    {(serviceIcons[selectedJob.category]?.icon || Wrench)({ size: 24 })}
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-800">{selectedJob.service}</h4>
+                    <h4 className="font-semibold text-gray-800">{selectedJob.category}</h4>
                     <p className="text-sm text-gray-600">{selectedJob.customer} • {selectedJob.location}</p>
                   </div>
                 </div>

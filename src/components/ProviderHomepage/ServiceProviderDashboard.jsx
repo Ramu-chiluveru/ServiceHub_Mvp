@@ -3,9 +3,13 @@ import {
   User, Bell, ClipboardList, CheckCircle, BarChart3, 
   Calendar, Home, DollarSign, CheckCircle as CheckCircleIcon,
   TrendingUp, Award, Zap, Map, Camera, FileText, Navigation,
-  Wind, Search, X, Send
+  Wind, Search, X, Send, MapPin, Clock, Star, XCircle,
+  Settings, Wrench, Droplets, PaintBucket, Phone, MessageCircle,
+  Battery, Wifi, Signal, Filter, Menu, Eye, Edit,
+  Plus, Minus, RefreshCw, AlertCircle, ThumbsUp, Shield, Truck,
+  Timer, Activity, Info, TreePalm, Bug, Sparkles, Sofa
 } from 'lucide-react';
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie';
 
 // Import tab components
 import DashboardTab from './components/DashboardTab';
@@ -18,9 +22,92 @@ import ProfileTab from './components/profile';
 
 const ServiceProviderDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [jobRequests, setJobRequests] = useState([]);
-  const token = Cookies.get("token");
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [animateStats, setAnimateStats] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [notifications, setNotifications] = useState(3);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [showMap, setShowMap] = useState(false);
+  const [showProposalModal, setShowProposalModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [proposalData, setProposalData] = useState({
+    price: '',
+    estimatedTime: '',
+    description: '',
+    availableDate: '',
+    availableTime: ''
+  });
+  const [scheduleTimings, setScheduleTimings] = useState({
+    startTime: '09:00',
+    endTime: '18:00',
+    workingDays: [1, 2, 3, 4, 5] // Monday to Friday
+  });
+  const [todaysEarnings, setTodaysEarnings] = useState(0);
+  const [jobsCompleted, setJobsCompleted] = useState(0);
+  const [weeklyEarnings, setWeeklyEarnings] = useState(0);
+  const [proposals, setProposals] = useState([]);
   
+  const token = Cookies.get("token");
+
+  const [jobRequests, setJobRequests] = useState([
+    {
+      id: 1,
+      customer: "Rajesh Kumar",
+      customerImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+      service: "AC Repair",
+      category: "ac-repair",
+      location: "Banjara Hills, Hyderabad",
+      distance: "2.3 km",
+      price: "₹800",
+      priority: "High",
+      description: "AC not cooling properly, making strange noise",
+      time: "2 hours ago",
+      rating: 4.8,
+      previousJobs: 12,
+      estimatedDuration: "2-3 hours",
+      customerPhone: "+91 9876543210",
+      photos: ["https://images.unsplash.com/photo-1631889993959-41b4e9c938c7?w=100&h=100&fit=crop"]
+    },
+    {
+      id: 2,
+      customer: "Priya Sharma",
+      customerImage: "https://images.unsplash.com/photo-1494790108755-2616b612b069?w=50&h=50&fit=crop&crop=face",
+      service: "Electrical Work",
+      category: "electrical",
+      location: "Jubilee Hills, Hyderabad",
+      distance: "4.1 km",
+      price: "₹600",
+      priority: "Medium",
+      description: "Power socket replacement in kitchen",
+      time: "45 minutes ago",
+      rating: 4.5,
+      previousJobs: 8,
+      estimatedDuration: "1-2 hours",
+      customerPhone: "+91 9876543211",
+      photos: ["https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=100&h=100&fit=crop"]
+    },
+    {
+      id: 3,
+      customer: "Amit Patel",
+      customerImage: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face",
+      service: "Plumbing",
+      category: "plumbing",
+      location: "Madhapur, Hyderabad",
+      distance: "1.8 km",
+      price: "₹1200",
+      priority: "High",
+      description: "Kitchen sink leakage, urgent repair needed",
+      time: "30 minutes ago",
+      rating: 4.9,
+      previousJobs: 15,
+      estimatedDuration: "1-2 hours",
+      customerPhone: "+91 9876543212",
+      photos: ["https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=100&h=100&fit=crop"]
+    }
+  ]);
+
   const [completedJobs] = useState([
     { id: 1, customer: "Amit Patel", service: "Plumbing", amount: "₹1,200", rating: 5, date: "Today", time: "2:30 PM", duration: "2.5 hrs" },
     { id: 2, customer: "Sunita Reddy", service: "Painting", amount: "₹2,500", rating: 4, date: "Yesterday", time: "4:15 PM", duration: "4 hrs" },
@@ -39,57 +126,63 @@ const ServiceProviderDashboard = () => {
     { day: 'Sun', earnings: 1900, jobs: 2 }
   ]);
 
-  const [todaysEarnings, setTodaysEarnings] = useState(0);
-  const [jobsCompleted, setJobsCompleted] = useState(0);
-  const [weeklyEarnings, setWeeklyEarnings] = useState(0);
-  const [proposals, setProposals] = useState([]);
-  const [showProposalModal, setShowProposalModal] = useState(false);
-  const [selectedJob, setSelectedJob] = useState(null);
-  const [proposalData, setProposalData] = useState({
-    price: '',
-    estimatedTime: '',
-    description: '',
-    availableDate: '',
-    availableTime: ''
-  });
-  const [scheduleTimings, setScheduleTimings] = useState({
-    startTime: '09:00',
-    endTime: '18:00',
-    workingDays: [1, 2, 3, 4, 5] // Monday to Friday
-  });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const serviceIcons = {
+    "plumbing": { icon: Droplets, color: "from-blue-500 to-blue-700", lightColor: "bg-blue-50" },
+    "ac-repair": { icon: Wind, color: "from-cyan-500 to-blue-600", lightColor: "bg-cyan-50" },
+    "furniture": { icon: Sofa, color: "from-orange-500 to-orange-700", lightColor: "bg-orange-50" },
+    "electrical": { icon: Zap, color: "from-yellow-500 to-orange-600", lightColor: "bg-yellow-50" },
+    "cleaning": { icon: Sparkles, color: "from-teal-500 to-emerald-600", lightColor: "bg-teal-50" },
+    "carpentry": { icon: Wrench, color: "from-amber-600 to-yellow-700", lightColor: "bg-amber-50" },
+    "painting": { icon: PaintBucket, color: "from-purple-500 to-purple-700", lightColor: "bg-purple-50" },
+    "appliance": { icon: Wrench, color: "from-gray-500 to-gray-700", lightColor: "bg-gray-50" },
+    "pest-control": { icon: Bug, color: "from-red-500 to-red-700", lightColor: "bg-red-50" },
+    "landscaping": { icon: TreePalm, color: "from-green-500 to-lime-600", lightColor: "bg-green-50" },
+    "home-security": { icon: Shield, color: "from-indigo-500 to-indigo-700", lightColor: "bg-indigo-50" },
+    "other": { icon: Wrench, color: "from-slate-400 to-slate-600", lightColor: "bg-slate-50" }
+  };
 
+  const daysOfWeek = [
+    { id: 0, name: 'Sun' },
+    { id: 1, name: 'Mon' },
+    { id: 2, name: 'Tue' },
+    { id: 3, name: 'Wed' },
+    { id: 4, name: 'Thu' },
+    { id: 5, name: 'Fri' },
+    { id: 6, name: 'Sat' }
+  ];
+
+  // Fetch job requests from API
   useEffect(() => {
+    if (!token) return;
 
-    
-        if (!token) return;
-    
-        const BASE_URL = import.meta.env.VITE_BASE_URL;
-        const endpoint = `${BASE_URL}/api/provider/jobs`;
-    
-        const fetchRequests = async () => {
-          try {
-            const response = await fetch(endpoint, {
-              method: "GET",
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
-            });
-    
-            const data = await response.json();
-            setJobRequests(data);
-            console.log(`pending jobs: ${data}`);
-            console.log(`pending jobs: ${jobRequests}`);
-          } catch (err) {
-            console.error("Error fetching jobs", err);
+    const BASE_URL = import.meta.env.VITE_BASE_URL;
+    const endpoint = `${BASE_URL}/api/provider/jobs`;
+
+    const fetchRequests = async () => {
+      try {
+        const response = await fetch(endpoint, {
+          method: "GET",
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           }
-        };
-    
-        fetchRequests();
-  
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setJobRequests(data);
+          console.log("Fetched pending jobs:", data);
+        }
+      } catch (err) {
+        console.error("Error fetching jobs", err);
+      }
+    };
+
+    fetchRequests();
+  }, [token]);
+
+  // Timer and animations
+  useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     
     // Animation for dashboard stats
@@ -117,13 +210,13 @@ const ServiceProviderDashboard = () => {
       clearInterval(jobsInterval);
       clearInterval(weeklyInterval);
     };
-  }, [[token]]);
+  }, []);
 
   const filteredJobs = jobRequests.filter(job => {
     const matchesSearch = job.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          job.service.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          job.location.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || job.urgency.toLowerCase() === filterStatus;
+    const matchesFilter = filterStatus === 'all' || job.priority.toLowerCase() === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
@@ -194,16 +287,6 @@ const ServiceProviderDashboard = () => {
     });
   };
 
-  const daysOfWeek = [
-    { id: 0, name: 'Sun' },
-    { id: 1, name: 'Mon' },
-    { id: 2, name: 'Tue' },
-    { id: 3, name: 'Wed' },
-    { id: 4, name: 'Thu' },
-    { id: 5, name: 'Fri' },
-    { id: 6, name: 'Sat' }
-  ];
-
   const TabButton = ({ id, label, icon: Icon, count }) => (
     <button
       onClick={() => setActiveTab(id)}
@@ -257,7 +340,7 @@ const ServiceProviderDashboard = () => {
         {activeTab === 'requests' && (
           <RequestsTab 
             jobRequests={jobRequests}
-            setJobRequests = {setJobRequests}
+            setJobRequests={setJobRequests}
             filteredJobs={filteredJobs}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
