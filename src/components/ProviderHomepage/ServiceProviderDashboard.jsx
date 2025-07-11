@@ -6,12 +6,13 @@ import {
   Navigation, Battery, Wifi, Signal, BarChart3, Filter, Search, 
   Menu, X, Map, Camera, FileText, Download, Upload, Eye, Edit, 
   Plus, Minus, RefreshCw, AlertCircle, ThumbsUp, Shield, Truck, 
-  Timer, Activity, Info
+  Timer, Activity, Info, Send, ClipboardList
 } from 'lucide-react';
 
 // Import your separate tab components
 import AnalyticsTab from './components/Analytics';
 import CompletedJobsTab from './components/CompletedJobsTab';
+import MyProposals from './components/requestspage/Myrequests2';
 import ScheduleTab from './components/schedule';
 import ProfileTab from './components/profile';
 
@@ -25,6 +26,15 @@ const ServiceProviderDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showMap, setShowMap] = useState(false);
+  const [showProposalModal, setShowProposalModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [proposalData, setProposalData] = useState({
+    price: '',
+    estimatedTime: '',
+    description: '',
+    availableDate: '',
+    availableTime: ''
+  });
   const [scheduleTimings, setScheduleTimings] = useState({
     startTime: '09:00',
     endTime: '18:00',
@@ -106,6 +116,7 @@ const ServiceProviderDashboard = () => {
   const [todaysEarnings, setTodaysEarnings] = useState(0);
   const [jobsCompleted, setJobsCompleted] = useState(0);
   const [weeklyEarnings, setWeeklyEarnings] = useState(0);
+  const [proposals, setProposals] = useState([]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -145,14 +156,58 @@ const ServiceProviderDashboard = () => {
     "General Repair": { icon: Wrench, color: "from-gray-500 to-gray-700", lightColor: "bg-gray-50" }
   };
 
-  const acceptJob = (jobId) => {
-    setJobRequests(prev => prev.filter(job => job.id !== jobId));
-    setNotifications(prev => prev - 1);
+  const openProposalModal = (job) => {
+    setSelectedJob(job);
+    setProposalData({
+      price: job.price.replace('₹', ''),
+      estimatedTime: job.estimatedDuration,
+      description: `Professional ${job.service.toLowerCase()} service with quality guarantee`,
+      availableDate: new Date().toISOString().split('T')[0],
+      availableTime: '10:00'
+    });
+    setShowProposalModal(true);
   };
 
-  const declineJob = (jobId) => {
-    setJobRequests(prev => prev.filter(job => job.id !== jobId));
+  const submitProposal = () => {
+    if (!proposalData.price || !proposalData.estimatedTime || !proposalData.description) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    // Create new proposal
+    const newProposal = {
+      id: proposals.length + 1,
+      jobId: selectedJob.id,
+      customer: selectedJob.customer,
+      service: selectedJob.service,
+      proposedPrice: `₹${proposalData.price}`,
+      status: "Pending",
+      submittedDate: new Date().toISOString().split('T')[0],
+      details: proposalData
+    };
+
+    // Add to proposals list
+    setProposals([...proposals, newProposal]);
+
+    // Remove the job from requests
+    setJobRequests(prev => prev.filter(job => job.id !== selectedJob.id));
     setNotifications(prev => prev - 1);
+    setShowProposalModal(false);
+    setSelectedJob(null);
+    
+    alert('Proposal sent successfully!');
+  };
+
+  const closeProposalModal = () => {
+    setShowProposalModal(false);
+    setSelectedJob(null);
+    setProposalData({
+      price: '',
+      estimatedTime: '',
+      description: '',
+      availableDate: '',
+      availableTime: ''
+    });
   };
 
   const filteredJobs = jobRequests.filter(job => {
@@ -193,31 +248,31 @@ const ServiceProviderDashboard = () => {
   ];
 
   const TabButton = ({ id, label, icon: Icon, count }) => (
-  <button
-    onClick={() => setActiveTab(id)}
-    className={`relative flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-      activeTab === id 
-        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg' 
-        : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'
-    }`}
-  >
-    <div className="relative">
-      <Icon size={20} />
-      {count > 0 && (
-        <span className={`
-          absolute -top-2 -right-2 
-          bg-red-500 text-white text-xs 
-          rounded-full w-5 h-5 flex items-center justify-center
-          ${activeTab === id ? 'ring-2 ring-white' : 'ring-2 ring-gray-100'}
-          ${count > 9 ? 'px-1 text-[0.65rem]' : ''}
-        `}>
-          {count > 9 ? '9+' : count}
-        </span>
-      )}
-    </div>
-    <span className="hidden sm:inline text-sm">{label}</span>
-  </button>
-);
+    <button
+      onClick={() => setActiveTab(id)}
+      className={`relative flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+        activeTab === id 
+          ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg' 
+          : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'
+      }`}
+    >
+      <div className="relative">
+        <Icon size={20} />
+        {count > 0 && (
+          <span className={`
+            absolute -top-2 -right-2 
+            bg-red-500 text-white text-xs 
+            rounded-full w-5 h-5 flex items-center justify-center
+            ${activeTab === id ? 'ring-2 ring-white' : 'ring-2 ring-gray-100'}
+            ${count > 9 ? 'px-1 text-[0.65rem]' : ''}
+          `}>
+            {count > 9 ? '9+' : count}
+          </span>
+        )}
+      </div>
+      <span className="hidden sm:inline text-sm">{label}</span>
+    </button>
+  );
 
   const MiniChart = ({ data }) => (
     <div className="flex items-end gap-1 h-8">
@@ -233,13 +288,12 @@ const ServiceProviderDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 my-20">
-      <div className="max-w-6xl mx-auto px-4 pt-2">
-      </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
           <TabButton id="dashboard" label="Dashboard" icon={Home} />
           <TabButton id="requests" label="Job Requests" icon={Bell} count={jobRequests.length} />
+          <TabButton id="proposals" label="My Proposals" icon={ClipboardList} count={proposals.filter(p => p.status === "Pending").length} />
           <TabButton id="completed" label="Completed" icon={CheckCircle} />
           <TabButton id="analytics" label="Analytics" icon={BarChart3} />
           <TabButton id="schedule" label="Schedule" icon={Calendar} />
@@ -494,7 +548,7 @@ const ServiceProviderDashboard = () => {
                                 <span>{job.location}</span>
                                 <span className="text-gray-400">({job.distance} away)</span>
                               </div>
-                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
                                 <Clock size={16} className="text-gray-400" />
                                 <span>{job.time}</span>
                                 <span className="text-gray-400">• {job.estimatedDuration}</span>
@@ -515,18 +569,11 @@ const ServiceProviderDashboard = () => {
                               
                               <div className="flex gap-3">
                                 <button
-                                  onClick={() => declineJob(job.id)}
-                                  className="flex items-center gap-2 px-4 py-2 bg-white text-red-500 rounded-xl font-medium border border-red-100 hover:bg-red-50 transition-colors duration-300"
+                                  onClick={() => openProposalModal(job)}
+                                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
                                 >
-                                  <XCircle size={18} />
-                                  Decline
-                                </button>
-                                <button
-                                  onClick={() => acceptJob(job.id)}
-                                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-                                >
-                                  <CheckCircle size={18} />
-                                  Accept Job
+                                  <Send size={18} />
+                                  Raise Proposal
                                 </button>
                               </div>
                             </div>
@@ -538,7 +585,117 @@ const ServiceProviderDashboard = () => {
                 </div>
               )}
             </div>
+
+            {/* Proposal Modal */}
+            {showProposalModal && selectedJob && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-xl font-bold text-gray-800">Service Proposal</h3>
+                      <button 
+                        onClick={closeProposalModal}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <X size={24} />
+                      </button>
+                    </div>
+                    
+                    <div className="mb-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`bg-gradient-to-r ${serviceIcons[selectedJob.service]?.color || "from-gray-500 to-gray-700"} text-white p-3 rounded-lg`}>
+                          <ServiceIcon size={24} />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-800">{selectedJob.service}</h4>
+                          <p className="text-sm text-gray-600">{selectedJob.customer} • {selectedJob.location}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Proposed Price (₹)*</label>
+                          <input
+                            type="number"
+                            value={proposalData.price}
+                            onChange={(e) => setProposalData({...proposalData, price: e.target.value})}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Enter your proposed price"
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Estimated Time*</label>
+                          <input
+                            type="text"
+                            value={proposalData.estimatedTime}
+                            onChange={(e) => setProposalData({...proposalData, estimatedTime: e.target.value})}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="e.g. 2-3 hours"
+                            required
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Available Date</label>
+                            <input
+                              type="date"
+                              value={proposalData.availableDate}
+                              onChange={(e) => setProposalData({...proposalData, availableDate: e.target.value})}
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              min={new Date().toISOString().split('T')[0]}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Available Time</label>
+                            <input
+                              type="time"
+                              value={proposalData.availableTime}
+                              onChange={(e) => setProposalData({...proposalData, availableTime: e.target.value})}
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Service Description*</label>
+                          <textarea
+                            value={proposalData.description}
+                            onChange={(e) => setProposalData({...proposalData, description: e.target.value})}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Describe your service approach and any additional details..."
+                            rows="3"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={closeProposalModal}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={submitProposal}
+                        className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
+                      >
+                        Send Proposal
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+        )}
+
+        {activeTab === 'proposals' && (
+          <MyProposals />
         )}
 
         {activeTab === 'completed' && (
