@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  User, MapPin, Clock, DollarSign, Star, CheckCircle, XCircle, 
-  Settings, Bell, Calendar, Wrench, Zap, Droplets, PaintBucket, 
-  Wind, Home, TrendingUp, Award, Target, Phone, MessageCircle, 
-  Navigation, Battery, Wifi, Signal, BarChart3, Filter, Search, 
-  Menu, X, Map, Camera, FileText, Download, Upload, Eye, Edit, 
-  Plus, Minus, RefreshCw, AlertCircle, ThumbsUp, Shield, Truck, 
-  Timer, Activity, Info, Send, ClipboardList
+import Cookies from 'js-cookie';
+import {
+  User, MapPin, Clock, DollarSign, Star, CheckCircle, XCircle,
+  Settings, Bell, Calendar, Wrench, Zap, Droplets, PaintBucket,
+  Wind, Home, TrendingUp, Award, Target, Phone, MessageCircle,
+  Navigation, Battery, Wifi, Signal, BarChart3, Filter, Search,
+  Menu, X, Map, Camera, FileText, Download, Upload, Eye, Edit,
+  Plus, Minus, RefreshCw, AlertCircle, ThumbsUp, Shield, Truck,
+  Timer, Activity, Info, Send, ClipboardList, TreePalm, Bug,
+  Sparkles, Sofa
 } from 'lucide-react';
 
 // Import your separate tab components
@@ -35,6 +37,8 @@ const ServiceProviderDashboard = () => {
     availableDate: '',
     availableTime: ''
   });
+  const token = Cookies.get("token");
+
   const [scheduleTimings, setScheduleTimings] = useState({
     startTime: '09:00',
     endTime: '18:00',
@@ -50,7 +54,7 @@ const ServiceProviderDashboard = () => {
       location: "Banjara Hills, Hyderabad",
       distance: "2.3 km",
       price: "₹800",
-      urgency: "High",
+      priority: "High",
       description: "AC not cooling properly, making strange noise",
       time: "2 hours ago",
       rating: 4.8,
@@ -67,7 +71,7 @@ const ServiceProviderDashboard = () => {
       location: "Jubilee Hills, Hyderabad",
       distance: "4.1 km",
       price: "₹600",
-      urgency: "Medium",
+      priority: "Medium",
       description: "Power socket replacement in kitchen",
       time: "45 minutes ago",
       rating: 4.5,
@@ -84,7 +88,7 @@ const ServiceProviderDashboard = () => {
       location: "Madhapur, Hyderabad",
       distance: "1.8 km",
       price: "₹1200",
-      urgency: "High",
+      priority: "High",
       description: "Kitchen sink leakage, urgent repair needed",
       time: "30 minutes ago",
       rating: 4.9,
@@ -94,6 +98,9 @@ const ServiceProviderDashboard = () => {
       photos: ["https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=100&h=100&fit=crop"]
     }
   ]);
+
+
+  
 
   const [completedJobs] = useState([
     { id: 1, customer: "Amit Patel", service: "Plumbing", amount: "₹1,200", rating: 5, date: "Today", time: "2:30 PM", duration: "2.5 hrs" },
@@ -118,43 +125,56 @@ const ServiceProviderDashboard = () => {
   const [weeklyEarnings, setWeeklyEarnings] = useState(0);
   const [proposals, setProposals] = useState([]);
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    setAnimateStats(true);
-    
-    const earningsInterval = setInterval(() => {
-      setTodaysEarnings(prev => prev < 3700 ? prev + 100 : 3700);
-    }, 50);
-    
-    const weeklyInterval = setInterval(() => {
-      setWeeklyEarnings(prev => prev < 16800 ? prev + 200 : 16800);
-    }, 30);
-    
-    const jobsInterval = setInterval(() => {
-      setJobsCompleted(prev => prev < 23 ? prev + 1 : 23);
-    }, 100);
+useEffect(() => {
+  if (!token) return;
 
-    setTimeout(() => {
-      clearInterval(earningsInterval);
-      clearInterval(jobsInterval);
-      clearInterval(weeklyInterval);
-    }, 2000);
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const endpoint = `${BASE_URL}/api/provider/jobs`;
 
-    return () => {
-      clearInterval(timer);
-      clearInterval(earningsInterval);
-      clearInterval(jobsInterval);
-      clearInterval(weeklyInterval);
-    };
-  }, []);
+  const fetchRequests = async () => {
+    try {
+      // setLoading(true);
+      const response = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-  const serviceIcons = {
-    "AC Repair": { icon: Wind, color: "from-cyan-500 to-blue-600", lightColor: "bg-cyan-50" },
-    "Electrical Work": { icon: Zap, color: "from-yellow-500 to-orange-600", lightColor: "bg-yellow-50" },
-    "Plumbing": { icon: Droplets, color: "from-blue-500 to-blue-700", lightColor: "bg-blue-50" },
-    "Painting": { icon: PaintBucket, color: "from-purple-500 to-purple-700", lightColor: "bg-purple-50" },
-    "General Repair": { icon: Wrench, color: "from-gray-500 to-gray-700", lightColor: "bg-gray-50" }
+      console.log('res: ', response);
+      const data = await response.json();
+      console.log("Fetched pending jobs:", data);
+      setJobRequests(data);
+      // setRequests(data);
+    } catch (err) {
+      console.error("Error fetching jobs", err);
+      // setError("Server error");
+    } finally {
+      // setLoading(false);
+    }
   };
+
+  fetchRequests();
+
+}, [token]); // now it reruns when token is ready
+
+
+const serviceIcons = {
+  "plumbing": { icon: Droplets, color: "from-blue-500 to-blue-700", lightColor: "bg-blue-50" },
+  "ac-repair": { icon: Wind, color: "from-cyan-500 to-blue-600", lightColor: "bg-cyan-50" },
+  "furniture": { icon: Sofa, color: "from-orange-500 to-orange-700", lightColor: "bg-orange-50" },
+  "electrical": { icon: Zap, color: "from-yellow-500 to-orange-600", lightColor: "bg-yellow-50" },
+  "cleaning": { icon: Sparkles, color: "from-teal-500 to-emerald-600", lightColor: "bg-teal-50" },
+  "carpentry": { icon: Wrench, color: "from-amber-600 to-yellow-700", lightColor: "bg-amber-50" },
+  "painting": { icon: PaintBucket, color: "from-purple-500 to-purple-700", lightColor: "bg-purple-50" },
+  "appliance": { icon: Wrench, color: "from-gray-500 to-gray-700", lightColor: "bg-gray-50" },
+  "pest-control": { icon: Bug, color: "from-red-500 to-red-700", lightColor: "bg-red-50" },
+  "landscaping": { icon: TreePalm, color: "from-green-500 to-lime-600", lightColor: "bg-green-50" },
+  "home-security": { icon: Shield, color: "from-indigo-500 to-indigo-700", lightColor: "bg-indigo-50" },
+  "other": { icon: Wrench, color: "from-slate-400 to-slate-600", lightColor: "bg-slate-50" }
+};
+
 
   const openProposalModal = (job) => {
     setSelectedJob(job);
@@ -214,7 +234,7 @@ const ServiceProviderDashboard = () => {
     const matchesSearch = job.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          job.service.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          job.location.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || job.urgency.toLowerCase() === filterStatus;
+    const matchesFilter = filterStatus === 'all' || job.priority.toLowerCase() === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
@@ -508,12 +528,12 @@ const ServiceProviderDashboard = () => {
               ) : (
                 <div className="space-y-6">
                   {filteredJobs.map((job) => {
-                    const ServiceIcon = serviceIcons[job.service]?.icon || Wrench;
-                    const gradientClass = serviceIcons[job.service]?.color || "from-gray-500 to-gray-700";
-                    const bgClass = serviceIcons[job.service]?.lightColor || "bg-gray-50";
+                    const ServiceIcon = serviceIcons[job.category]?.icon || Wrench;
+                    const gradientClass = serviceIcons[job.category]?.color || "from-gray-500 to-gray-700";
+                    const bgClass = serviceIcons[job.category]?.lightColor || "bg-gray-50";
                     
                     return (
-                      <div key={job.id} className={`p-6 rounded-2xl ${bgClass} border-l-4 ${job.urgency === 'High' ? 'border-red-500' : job.urgency === 'Medium' ? 'border-yellow-500' : 'border-green-500'} shadow-sm hover:shadow-md transition-all duration-300`}>
+                      <div key={job.id} className={`p-6 rounded-2xl ${bgClass} border-l-4 ${job.priority === 'High' ? 'border-red-500' : job.priority === 'Medium' ? 'border-yellow-500' : 'border-green-500'} shadow-sm hover:shadow-md transition-all duration-300`}>
                         <div className="flex flex-col md:flex-row gap-6">
                           <div className="flex-shrink-0">
                             <div className={`bg-gradient-to-r ${gradientClass} text-white p-4 rounded-xl w-14 h-14 flex items-center justify-center`}>
@@ -523,14 +543,14 @@ const ServiceProviderDashboard = () => {
                           <div className="flex-1">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                               <div>
-                                <h4 className="text-lg font-bold text-gray-800">{job.service}</h4>
+                                <h4 className="text-lg font-bold text-gray-800">{job.category}</h4>
                                 <p className="text-gray-600">{job.description}</p>
                               </div>
                               <div className="bg-white px-3 py-1 rounded-full text-sm font-medium shadow-sm">
                                 <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                                  job.urgency === 'High' ? 'bg-red-500' : job.urgency === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'
+                                  job.priority === 'High' ? 'bg-red-500' : job.priority === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'
                                 }`}></span>
-                                {job.urgency} Priority
+                                {job.priority} Priority
                               </div>
                             </div>
                             
@@ -538,21 +558,17 @@ const ServiceProviderDashboard = () => {
                               <div className="flex items-center gap-2 text-sm text-gray-600">
                                 <User size={16} className="text-gray-400" />
                                 <span>{job.customer}</span>
-                                <span className="flex items-center gap-1 text-yellow-600">
-                                  <Star size={14} fill="currentColor" />
-                                  {job.rating}
-                                </span>
                               </div>
                               <div className="flex items-center gap-2 text-sm text-gray-600">
                                 <MapPin size={16} className="text-gray-400" />
                                 <span>{job.location}</span>
                                 <span className="text-gray-400">({job.distance} away)</span>
                               </div>
-                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              {/* <div className="flex items-center gap-2 text-sm text-gray-600">
                                 <Clock size={16} className="text-gray-400" />
                                 <span>{job.time}</span>
                                 <span className="text-gray-400">• {job.estimatedDuration}</span>
-                              </div>
+                              </div> */}
                             </div>
                             
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -560,10 +576,6 @@ const ServiceProviderDashboard = () => {
                                 <div className="flex items-center gap-1 bg-white px-3 py-1 rounded-full text-sm font-medium shadow-sm">
                                   <DollarSign size={14} className="text-green-500" />
                                   <span className="font-bold text-gray-800">{job.price}</span>
-                                </div>
-                                <div className="flex items-center gap-1 text-sm text-gray-600">
-                                  <span>Previous jobs:</span>
-                                  <span className="font-medium">{job.previousJobs}</span>
                                 </div>
                               </div>
                               
@@ -603,7 +615,7 @@ const ServiceProviderDashboard = () => {
                     
                     <div className="mb-6">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className={`bg-gradient-to-r ${serviceIcons[selectedJob.service]?.color || "from-gray-500 to-gray-700"} text-white p-3 rounded-lg`}>
+                        <div className={`bg-gradient-to-r ${serviceIcons[selectedJob.category]?.color || "from-gray-500 to-gray-700"} text-white p-3 rounded-lg`}>
                           <ServiceIcon size={24} />
                         </div>
                         <div>
