@@ -1,6 +1,8 @@
 import React, { useState,useEffect } from 'react';
 import { Search, MapPin, Star, User, Plus, Menu, X, Filter, ChevronDown } from 'lucide-react';
 import PopupForm from './requestspage/PopupForm';
+import useUserLocation from '../../hooks/UserLocation';
+import Cookies from 'js-cookie';
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,6 +23,40 @@ const Home = () => {
     { name: 'Gardeners', icon: '🌱' },
     { name: 'Painters', icon: '🎨' },
   ];
+
+  const { location, loading, error } = useUserLocation();
+  console.log(`location: ${JSON.stringify(location)}`);
+
+  useEffect(() => {
+  if (!loading && location.lat && location.lng) {
+    const token = Cookies.get("token");
+
+    const saveLocation = async () => {
+      try {
+        const BASE_URL = import.meta.env.VITE_BASE_URL;
+        const endpoint = `${BASE_URL}/api/user/location`;
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            latitude: location.lat,
+            longitude: location.lng
+          })
+        });
+        const data = await res.text();
+        console.log("Saved location:", data);
+      } catch (err) {
+        console.error("Failed to save location", err);
+      }
+    };
+
+    saveLocation();
+  }
+}, [location, loading]);
 
    useEffect(() => {
       const fetchRequests = async () => {
