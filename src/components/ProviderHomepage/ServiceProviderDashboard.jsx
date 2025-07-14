@@ -7,7 +7,7 @@ import {
   Settings, Wrench, Droplets, PaintBucket, Phone, MessageCircle,
   Battery, Wifi, Signal, Filter, Menu, Eye, Edit,
   Plus, Minus, RefreshCw, AlertCircle, ThumbsUp, Shield, Truck,
-  Timer, Activity, Info, TreePalm, Bug, Sparkles, Sofa
+  Timer, Activity, Info, TreePalm, Bug, Sparkles, Sofa,Briefcase
 } from 'lucide-react';
 import Cookies from 'js-cookie';
 
@@ -19,6 +19,7 @@ import CompletedJobsTab from './components/CompletedJobsTab';
 import AnalyticsTab from './components/Analytics';
 import ScheduleTab from './components/schedule';
 import ProfileTab from './components/profile';
+import NewService from './components/NewServices';
 
 const ServiceProviderDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -324,6 +325,7 @@ const ServiceProviderDashboard = () => {
           <TabButton id="completed" label="Completed" icon={CheckCircleIcon} />
           <TabButton id="analytics" label="Analytics" icon={BarChart3} />
           <TabButton id="schedule" label="Schedule" icon={Calendar} />
+          <TabButton id="Newservice" label="Newservice" icon={Briefcase} />
           <TabButton id="profile" label="Profile" icon={User} />
         </div>
 
@@ -386,6 +388,10 @@ const ServiceProviderDashboard = () => {
 
         {activeTab === 'profile' && (
           <ProfileTab />
+        )}
+
+        {activeTab === 'Newservice' && (
+          <NewService />
         )}
       </div>
     </div>
