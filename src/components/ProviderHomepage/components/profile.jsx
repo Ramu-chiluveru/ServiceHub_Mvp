@@ -1,8 +1,11 @@
 import { User, Edit, Settings, CheckCircle, AlertCircle, Star, LogOut, Shield, MapPin, Phone, Mail, Camera } from 'lucide-react';
 import { useState } from 'react';
+import Cookies from "js-cookie";
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     setShowLogoutModal(true);
@@ -11,7 +14,11 @@ const Profile = () => {
   const confirmLogout = () => {
     // Handle logout logic here
     console.log('Logging out...');
+    Cookies.remove("token");
+    Cookies.remove("role");
     setShowLogoutModal(false);
+    navigate("/login");
+    return;
   };
 
   return (
