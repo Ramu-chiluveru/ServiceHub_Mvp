@@ -20,6 +20,7 @@ import AnalyticsTab from './components/Analytics';
 import ScheduleTab from './components/schedule';
 import ProfileTab from './components/profile';
 import NewService from './components/NewServices';
+import useUserLocation from "../../hooks/UserLocation";
 
 const ServiceProviderDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
