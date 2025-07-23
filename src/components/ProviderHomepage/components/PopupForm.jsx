@@ -11,6 +11,8 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
   const [servicename,setServicename] = useState('');
   const [status,setStatus] = useState('');
 
+  const token = Cookies.get("token");
+
   // Service categories dropdown options
   const categories = [
     { value: 'plumbing', label: 'Plumbing Services' },
@@ -38,16 +40,20 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
 
   // Form submission handler
   const handleSubmit = async() => {
-    if (category && description && price && priority) {
+    if (category && description && price && servicename) 
+    {
       const BASE_URL = import.meta.env.VITE_BASE_URL;
-      const endpoint = `${BASE_URL}/api/customer/job`;
+      const endpoint = `${BASE_URL}/api/provider/service`;
       const payload = {
         category: category,
         description: description,
+        servicename: servicename,
         price: price,
-        priority: priority,
         image: image
       }
+
+      console.log(`token: ${token}`);
+      console.log(`payload: ${JSON.stringify(payload)}`);
       
       try {
         const res = await fetch(endpoint, {
@@ -59,7 +65,10 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
           body: JSON.stringify(payload)
         });
 
-        if (!res.ok) {
+        console.log(res);
+
+        if (!res.ok) 
+        {
           setStatus('error');
           return;
         }
@@ -71,11 +80,12 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
             category,
             description,
             price,
-            priority,
+            servicename,
             image
           });
         }
       } catch (error) {
+        console.log(error);
         setStatus('error');
       }
     } else {
@@ -198,15 +208,14 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
                 {/* Priority Selection - Changed to dropdown */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Priority Level <span className="text-red-500">*</span>
+                    Service Title <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    value={""}
-                    // onChange={}
+                  <input
+                  type='text'
+                    value={servicename}
+                    onChange={(e) => setServicename(e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white"
-                  >
-                    <option value="">Select priority level</option>
-                  </select>
+                  />
                 </div>
 
                 {/* Description */}
