@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, X, Upload, Star, AlertCircle } from 'lucide-react';
 import Cookies from 'js-cookie';
 
-const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
+const PopupForm = ({ onClose, onRequestAdded, onViewRequests,setEditingService,service }) => {
   // State management for form fields
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
@@ -12,6 +12,17 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
   const [status,setStatus] = useState('');
 
   const token = Cookies.get("token");
+
+ useEffect(() => {
+  if (service) {
+    console.log(`service received: ${JSON.stringify(service)}`);
+    setCategory(service.category || '');
+    setDescription(service.description || '');
+    setPrice(service.price || '');
+    setServicename(service.servicename || '');
+  }
+}, [service]);
+
 
   // Service categories dropdown options
   const categories = [
@@ -39,59 +50,113 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
   }, []);
 
   // Form submission handler
-  const handleSubmit = async() => {
-    if (category && description && price && servicename) 
-    {
-      const BASE_URL = import.meta.env.VITE_BASE_URL;
-      const endpoint = `${BASE_URL}/api/provider/service`;
-      const payload = {
-        category: category,
-        description: description,
-        servicename: servicename,
-        price: price,
-        image: image
-      }
+  const handleSubmit = async () => {
+  if (category && description && price && servicename) {
+    const BASE_URL = import.meta.env.VITE_BASE_URL;
+    const isEditing = !!service;
+    const endpoint = isEditing
+      ? `${BASE_URL}/api/provider/service/${service.id}`  // PUT for update
+      : `${BASE_URL}/api/provider/service`;               // POST for new
 
-      console.log(`token: ${token}`);
-      console.log(`payload: ${JSON.stringify(payload)}`);
-      
-      try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(payload)
-        });
+    const method = isEditing ? 'PUT' : 'POST';
 
-        console.log(res);
+    console.log(`endpoint: ${endpoint}`);
+    const payload = {
+      category,
+      description,
+      servicename,
+      price,
+      image
+    };
 
-        if (!res.ok) 
-        {
-          setStatus('error');
-          return;
-        }
-        
-        setStatus('success');
-        
-        if (onRequestAdded) {
-          onRequestAdded({
-            category,
-            description,
-            price,
-            servicename,
-            image
-          });
-        }
-      } catch (error) {
-        console.log(error);
+    try {
+      const res = await fetch(endpoint, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
         setStatus('error');
+        return;
       }
-    } else {
+
+      setStatus('success');
+
+      if (onRequestAdded) {
+        onRequestAdded(payload);
+      }
+
+      // Reset editing state after update
+      if (isEditing && setEditingService) {
+        setEditingService(null);
+      }
+
+    } catch (error) {
+      console.error("Request failed:", error);
       setStatus('error');
     }
-  };
+  } else {
+    setStatus('error');
+  }
+};
+
+  // const handleSubmit = async() => {
+  //   if (category && description && price && servicename) 
+  //   {
+  //     const BASE_URL = import.meta.env.VITE_BASE_URL;
+  //     const endpoint = `${BASE_URL}/api/provider/service`;
+  //     const payload = {
+  //       category: category,
+  //       description: description,
+  //       servicename: servicename,
+  //       price: price,
+  //       image: image
+  //     }
+
+  //     console.log(`token: ${token}`);
+  //     console.log(`payload: ${JSON.stringify(payload)}`);
+      
+  //     try {
+  //       const res = await fetch(endpoint, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'Authorization': `Bearer ${token}`
+  //         },
+  //         body: JSON.stringify(payload)
+  //       });
+
+  //       console.log(res);
+
+  //       if (!res.ok) 
+  //       {
+  //         setStatus('error');
+  //         return;
+  //       }
+        
+  //       setStatus('success');
+        
+  //       if (onRequestAdded) {
+  //         onRequestAdded({
+  //           category,
+  //           description,
+  //           price,
+  //           servicename,
+  //           image
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //       setStatus('error');
+  //     }
+  //   } else {
+  //     setStatus('error');
+  //   }
+  // };
 
   // Remove uploaded image
   const removeImage = () => {
@@ -103,7 +168,10 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 py-4 overflow-y-auto"
       onClick={(e) => {
         // Close only when clicking on backdrop
-        if (e.target === e.currentTarget) {
+        if (e.target === e.currentTarget) 
+        {
+          console.log("close clicked");
+          setEditingService(null);
           onClose();
         }
       }}
@@ -118,15 +186,18 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-t-2xl relative">
           {/* Close Button */}
           <button
-            onClick={onClose}
+            onClick={(e) => {
+                console.log("close clicked");
+                setEditingService(null);
+                onClose();
+            }}
             className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200 z-10"
           >
             <X size={20} />
           </button>
           
           {/* Blue Heading as requested */}
-          <h2 className="text-2xl font-bold mb-2 pr-12 text-blue-200">Request for Service Provider</h2>
-          <p className="text-blue-100">Tell us what you need help with</p>
+          <h2 className="text-2xl font-bold mb-2 pr-12 text-blue-200">Add Service for Customers</h2>
         </div>
 
         {/* Form Content with scrollable area */}
@@ -160,20 +231,10 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests }) => {
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle className="text-green-600 w-8 h-8" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Request Submitted Successfully!</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Service Added Successfully!</h3>
               <p className="text-gray-600 mb-6">Your service request has been received and will be processed shortly.</p>
               
               <div className="space-y-3">
-                <button
-                  onClick={() => {
-                    if (onViewRequests) {
-                      onViewRequests();
-                    }
-                  }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center"
-                >
-                  View My Requests
-                </button>
                 <button
                   onClick={onClose}
                   className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-medium transition-colors"
