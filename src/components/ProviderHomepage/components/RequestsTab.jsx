@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   User, Bell, Search, Map, X, Send, DollarSign, Wrench, Droplets, Wind, Sofa,
-  Zap, Sparkles, PaintBucket, Bug, TreePalm, Shield,MapPin
+  Zap, Sparkles, PaintBucket, Bug, TreePalm, Shield, MapPin, CheckCircle, AlertCircle
 } from 'lucide-react';
 import Cookies from "js-cookie";
 
@@ -22,6 +22,7 @@ const RequestsTab = ({
   setJobRequests
 }) => {
   const [showMap, setShowMap] = useState(false);
+  const [confirmationModal, setConfirmationModal] = useState({ isOpen: false, job: null });
   const token = Cookies.get("token");
 
   const serviceIcons = {
@@ -37,6 +38,36 @@ const RequestsTab = ({
     "landscaping": { icon: TreePalm, color: "from-green-500 to-lime-600", lightColor: "bg-green-50" },
     "home-security": { icon: Shield, color: "from-indigo-500 to-indigo-700", lightColor: "bg-indigo-50" },
     "other": { icon: Wrench, color: "from-slate-400 to-slate-600", lightColor: "bg-slate-50" }
+  };
+
+  // Handle confirmation modal
+  const handleRaiseProposal = (job) => {
+    setConfirmationModal({ isOpen: true, job });
+  };
+
+  const handleConfirmProposal = async () => {
+    if (!confirmationModal.job?.id) return;
+    const BASE_URL = import.meta.env.VITE_BASE_URL;
+    const endpoint = `${BASE_URL}/api/provider/raiseproposal/${confirmationModal.job.id}`; 
+    try {
+      const response = await fetch(endpoint , {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        console.log("Proposal raised successfully");
+        handleCancelConfirmation();
+      } else {
+        console.error("Failed to raise proposal");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+
+  const handleCancelConfirmation = () => {
+    setConfirmationModal({ isOpen: false, job: null });
   };
 
   return (
@@ -67,9 +98,8 @@ const RequestsTab = ({
             </select>
             <button
               onClick={() => setShowMap(!showMap)}
-              className={`px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-                showMap ? 'bg-blue-500 text-white' : 'bg-white/50 text-gray-600 hover:bg-white/70'
-              }`}
+              className={`px-4 py-3 rounded-xl font-medium transition-all duration-300 ${showMap ? 'bg-blue-500 text-white' : 'bg-white/50 text-gray-600 hover:bg-white/70'
+                }`}
             >
               <Map size={20} />
             </button>
@@ -101,8 +131,8 @@ const RequestsTab = ({
               const { icon: Icon, color, lightColor } = serviceIcons[job.category] || serviceIcons["other"];
               const borderColor =
                 job.priority === 'High' ? 'border-red-500' :
-                job.priority === 'Medium' ? 'border-yellow-500' :
-                'border-green-500';
+                  job.priority === 'Medium' ? 'border-yellow-500' :
+                    'border-green-500';
 
               return (
                 <div key={job.id} className={`p-6 rounded-2xl ${lightColor} border-l-4 ${borderColor} shadow-sm hover:shadow-md transition-all duration-300`}>
@@ -119,9 +149,8 @@ const RequestsTab = ({
                           <p className="text-gray-600">{job.description}</p>
                         </div>
                         <div className="bg-white px-3 py-1 rounded-full text-sm font-medium shadow-sm">
-                          <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                            job.priority === 'High' ? 'bg-red-500' : job.priority === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'
-                          }`}></span>
+                          <span className={`inline-block w-2 h-2 rounded-full mr-2 ${job.priority === 'High' ? 'bg-red-500' : job.priority === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'
+                            }`}></span>
                           {job.priority} Priority
                         </div>
                       </div>
@@ -133,12 +162,10 @@ const RequestsTab = ({
                         </div>
 
                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <MapPin size={16} className="text-gray-400" />
-                                <span>{job.location}</span>
-                                {/* <span className="text-gray-400">({job.distance} away)</span> */}
-                              </div>
+                          <MapPin size={16} className="text-gray-400" />
+                          <span>{job.location}</span>
+                        </div>
                       </div>
-                      
 
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
@@ -149,7 +176,7 @@ const RequestsTab = ({
                         </div>
 
                         <button
-                          onClick={() => openProposalModal(job)}
+                          onClick={() => handleRaiseProposal(job)}
                           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105"
                         >
                           <Send size={18} />
@@ -164,6 +191,89 @@ const RequestsTab = ({
           </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmationModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 p-2 rounded-full">
+                  <AlertCircle className="text-blue-600" size={20} />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Confirm Proposal</h3>
+              </div>
+              <button
+                onClick={handleCancelConfirmation}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={20} className="text-gray-400" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <div className="mb-6">
+                <p className="text-gray-600 mb-4">
+                  Are you sure you want to raise a proposal for this job?
+                </p>
+
+                {confirmationModal.job && (
+                  <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`bg-gradient-to-r ${serviceIcons[confirmationModal.job.category]?.color || "from-gray-500 to-gray-700"} text-white p-2 rounded-lg`}>
+                        {React.createElement(serviceIcons[confirmationModal.job.category]?.icon || Wrench, { size: 20 })}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">{confirmationModal.job.category}</h4>
+                        <p className="text-sm text-gray-600">{confirmationModal.job.description}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <User size={14} className="text-gray-400" />
+                        <span className="text-gray-700">{confirmationModal.job.customer}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin size={14} className="text-gray-400" />
+                        <span className="text-gray-700">{confirmationModal.job.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DollarSign size={14} className="text-green-500" />
+                        <span className="text-gray-700 font-semibold">{confirmationModal.job.price}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${confirmationModal.job.priority === 'High' ? 'bg-red-500' :
+                            confirmationModal.job.priority === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'
+                          }`}></div>
+                        <span className="text-gray-700">{confirmationModal.job.priority} Priority</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCancelConfirmation}
+                  className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmProposal}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <CheckCircle size={18} />
+                  Proceed
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Proposal Modal */}
       {showProposalModal && selectedJob && (
@@ -180,7 +290,7 @@ const RequestsTab = ({
               <div className="mb-6 space-y-4">
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`bg-gradient-to-r ${serviceIcons[selectedJob.category]?.color || "from-gray-500 to-gray-700"} text-white p-3 rounded-lg`}>
-                    {(serviceIcons[selectedJob.category]?.icon || Wrench)({ size: 24 })}
+                    {React.createElement(serviceIcons[selectedJob.category]?.icon || Wrench, { size: 24 })}
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-800">{selectedJob.category}</h4>

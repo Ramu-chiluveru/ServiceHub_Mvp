@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Edit3, Trash2, MapPin, Star, DollarSign, Clock } from 'lucide-react';
+import PopupForm from './PopupForm';
 
 const NewService = () => {
   const [services, setServices] = useState([
@@ -35,13 +36,13 @@ const NewService = () => {
     }
   ]);
 
+  const [plusClicked,setPlusClicked] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     category: '',
     price: '',
-    location: '',
     description: ''
   });
 
@@ -55,25 +56,35 @@ const NewService = () => {
   };
 
   const handleSubmit = () => {
+
+    console.log(`${JSON.stringify(formData)}`);
     if (!formData.name || !formData.category || !formData.price || !formData.location || !formData.description) {
       return;
     }
     
-    if (editingService) {
+    if (editingService) 
+    {
       setServices(services.map(service => 
         service.id === editingService.id 
           ? { ...service, ...formData, price: parseFloat(formData.price) }
           : service
       ));
       setEditingService(null);
-    } else {
-      const newService = {
+    } 
+    else{
+      console.log(`${JSON.stringify(formData)}`)
+      const newService = 
+      {
         id: Date.now(),
         ...formData,
         price: parseFloat(formData.price),
         rating: 0,
         reviews: 0
       };
+
+
+
+
       setServices([...services, newService]);
     }
     setFormData({ name: '', category: '', price: '', location: '', description: '' });
@@ -119,7 +130,7 @@ const NewService = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Add Service Button */}
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <button
             onClick={() => setShowAddForm(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2 transition-colors duration-200 shadow-lg hover:shadow-xl"
@@ -127,7 +138,13 @@ const NewService = () => {
             <Plus size={20} />
             <span>Add New Service</span>
           </button>
+        </div> */}
+
+        {plusClicked && (
+        <div onClick={() => setPlusClicked(false)}>
+          <PopupForm onClose={() => setPlusClicked(false)} reqId={null} categories={categories}/>
         </div>
+      )}
 
         {/* Add/Edit Service Form */}
         {showAddForm && (
@@ -175,18 +192,6 @@ const NewService = () => {
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Service location"
                     required
                   />
                 </div>
@@ -289,14 +294,22 @@ const NewService = () => {
       </div>
 
       {/* Floating Add Button (Mobile) */}
-      <div className="fixed bottom-6 right-6 md:hidden">
+      {/* <div className="fixed bottom-6 right-6 md:hidden">
         <button
           onClick={() => setShowAddForm(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
         >
           <Plus size={24} />
         </button>
-      </div>
+      </div> */}
+       <button
+            onClick={() => setPlusClicked(true)}
+            className={`fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 z-40 transform hover:scale-110 active:scale-95 ${
+              plusClicked ? 'rotate-45 bg-red-500' : 'rotate-0'
+            }`}
+          >
+              <Plus className="h-6 w-6 transition-transform duration-300" />
+          </button>
     </div>
   );
 };

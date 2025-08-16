@@ -37,7 +37,7 @@ const ServiceProviderDashboard = () => {
   const [proposals, setProposals] = useState([]);
   const [jobRequests, setJobRequests] = useState([]);
 
-  const token = Cookies.get("token");
+  const   token = Cookies.get("token");
   const { location, loading } = useUserLocation();
   const hasSentLocation = useRef(false);
 
@@ -109,6 +109,8 @@ const ServiceProviderDashboard = () => {
       .then(res => res.ok ? res.json() : [])
       .then(data => setJobRequests(data))
       .catch(err => console.error("Error fetching jobs", err));
+
+    console.log(jobRequests);
   }, [token]);
 
   useEffect(() => {
