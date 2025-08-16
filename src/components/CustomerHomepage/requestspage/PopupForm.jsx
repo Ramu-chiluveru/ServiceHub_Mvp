@@ -54,7 +54,7 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests,reqId }) => {
 
     try {
       const BASE_URL = import.meta.env.VITE_BASE_URL;
-      const endpoint = `${BASE_URL}/api/customer/job/${reqId}`; // Assuming GET by ID
+      const endpoint = `${BASE_URL}/api/customer/job/${reqId}`; 
 
       const res = await fetch(endpoint, {
         method: 'GET',

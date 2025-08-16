@@ -114,8 +114,6 @@ const MyRequests = () => {
   // }, [userEmail, navigate]);
 
   useEffect(() => {
-    
-
     setTimeout(() => {
       setRequests(mockRequests);
       setIsLoading(false);
