@@ -22,7 +22,7 @@ export default function MyRequests2() {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
-    const endpoint = `${BASE_URL}/api/customer/jobs`;
+    const endpoint = `${BASE_URL}/api/provider/raisedjobs`;
     console.log(`endpoint: ${endpoint} with token: ${token}`)
     const fetchRequests = async () => {
       try {
@@ -48,7 +48,7 @@ export default function MyRequests2() {
       }
     };
     fetchRequests();
-  }, []);
+  }, [token]);
 
   const filteredRequests = requests
     .filter(b => {

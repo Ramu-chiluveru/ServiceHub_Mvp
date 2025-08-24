@@ -73,8 +73,6 @@ const UserRequestCard = ({
     completedAt, requestId
   } = request;
 
-  console.log(`request: ${JSON.stringify(request)}`);
-
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
@@ -205,24 +203,6 @@ const UserRequestCard = ({
         {/* Footer buttons */}
         <div className="flex justify-between items-center pt-4 border-t border-gray-100">
           <div className="flex items-center space-x-2">
-            <button 
-              onClick={(e) => handleViewDetails(e)}
-              className="text-blue-600 hover:text-blue-800 text-sm px-3 py-1 rounded-md hover:bg-blue-50 transition flex items-center"
-            >
-              <Eye className="h-4 w-4 mr-1" /> View Details
-            </button>
-            {proposals.length > 0 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowProposals(!showProposals);
-                }}
-                className="text-green-600 hover:text-green-800 text-sm px-3 py-1 rounded-md hover:bg-green-50 transition flex items-center"
-              >
-                <MessageSquare className="h-4 w-4 mr-1" /> 
-                {showProposals ? 'Hide' : 'View'} Proposals
-              </button>
-            )}
           </div>
 
           <div className="flex items-center space-x-2">

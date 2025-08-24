@@ -52,6 +52,10 @@ const RequestsTab = ({
     try {
       const response = await fetch(endpoint , {
         method: 'POST',
+         headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
       });
 
       if (response.ok) {

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import {useNavigate} from 'react-router-dom';
 import PopupForm from './PopupForm';
+import ConfirmPopup from './AcceptProposal';
 
 // ProposalCard Component for displaying individual proposals
 const ProposalCard = ({ proposal, onAccept, requestStatus, formatDate }) => {
@@ -89,6 +90,7 @@ const UserRequestCard = ({
 
   const [isEdit,setEdit] = useState(false);
   const [reqId,setReqId] = useState(null);
+  const [proposalPayload,setProposalPayload] = useState(null);
 
   const getUrgencyColor = (priority) => {
     switch (priority) {
@@ -111,6 +113,7 @@ const UserRequestCard = ({
 
   const handleAcceptProposal = (proposalId, e) => {
     e.stopPropagation();
+    console.log(`proposal id: ${proposalId}`);
     onAcceptProposal && onAcceptProposal(_id, proposalId);
   };
 
@@ -257,7 +260,8 @@ const UserRequestCard = ({
           </div>
         </div>
       </div>
-
+      
+      {proposalPayload != null && <ConfirmPopup message={"Are you sure to accept the proposal?"} id={proposalPayload} onClose={setProposalPayload}/>}
       {/* Proposals Section */}
       {showProposals && proposals.length > 0 && (
         <div className="border-t border-gray-200 bg-gray-50">
@@ -286,7 +290,7 @@ const UserRequestCard = ({
                   key={proposal.id}
                   proposal={proposal}
                   requestStatus={status}
-                  onAccept={(e) => handleAcceptProposal(proposal.id, e)}
+                  onAccept={(e) => setProposalPayload({"requestId":request.id,"proposalId":proposal.id})}
                   formatDate={formatDate}
                 />
               ))}
