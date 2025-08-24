@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Calendar, Clock, MapPin, User, Star, Wrench, Eye, Phone,
   XCircle, MoreVertical, DollarSign, Users, CheckCircle,
@@ -6,8 +6,9 @@ import {
   AlertCircle, Package
 } from 'lucide-react';
 import {useNavigate} from 'react-router-dom';
+import ConfirmPopup from '../../../CustomerHomepage/requestspage/AcceptProposal';
 
-// ProposalCard Component for displaying individual proposals
+
 const ProposalCard = ({ proposal, onAccept, requestStatus, formatDate }) => {
   return (
     <div className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-sm transition-all duration-200">
@@ -63,7 +64,8 @@ const UserRequestCard = ({
   onEdit, 
   onClose, 
   onAcceptProposal, 
-  onViewDetails 
+  onViewDetails,
+  setRefresh
 }) => {
   const [showProposals, setShowProposals] = useState(false);
   const navigate = useNavigate();
@@ -72,6 +74,12 @@ const UserRequestCard = ({
     status, urgency, proposals = [], acceptedProposal, 
     completedAt, requestId
   } = request;
+
+  const [payload,setPayload] = useState(null);
+
+  useEffect(()=>{
+
+  },[payload])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -200,6 +208,9 @@ const UserRequestCard = ({
           </div>
         </div>
 
+
+        {payload != null && <ConfirmPopup message={"Are you sure to withdraw the proposal for ?"} id={payload} onClose={setPayload} setRefresh={setRefresh}/>}
+
         {/* Footer buttons */}
         <div className="flex justify-between items-center pt-4 border-t border-gray-100">
           <div className="flex items-center space-x-2">
@@ -211,7 +222,7 @@ const UserRequestCard = ({
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
-                    onEdit && onEdit(_id);
+                    onEdit && onEdit({"requestId":id,"proposalId":null});
                   }}
                   className="text-sm text-orange-600 border border-orange-200 px-3 py-1 rounded-md hover:bg-orange-50 transition flex items-center"
                 >
@@ -221,15 +232,22 @@ const UserRequestCard = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onClose && onClose(_id);
+                    setPayload({"requestId":id,"proposalId":null});
                   }}
                   className="text-sm text-red-600 border border-red-200 px-3 py-1 rounded-md hover:bg-red-50 transition flex items-center"
                 >
                   <XCircle className="h-4 w-4 mr-1" />
-                  Close
+                  Withdraw
                 </button>
               </>
             )}
+            {
+              status == "confirmed" && (
+                <button className="text-sm text-green-600 border  border-blue-200 px-3 py-1 rounded-md hover:bg-blue-50 transition">
+                  Complete & Send OTP
+              </button>
+              )
+            }
             {status === 'completed' && (
               <button className="text-sm text-blue-600 border border-blue-200 px-3 py-1 rounded-md hover:bg-blue-50 transition">
                 Download Invoice

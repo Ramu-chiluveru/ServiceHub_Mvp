@@ -7,6 +7,7 @@ import EmptyState from './EmptyState';
 import UserRequestCard from "./ProposalCard";
 import PopupForm from './PopupForm';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import ConfirmPopup from '../../../CustomerHomepage/requestspage/AcceptProposal';
 
 export default function MyRequests2() {
   const [requests, setRequests] = useState([]);
@@ -17,6 +18,7 @@ export default function MyRequests2() {
   const [filterStatus, setFilterStatus] = useState('completed');
   const [sortBy, setSortBy] = useState('date');
   const [activeTab, setActiveTab] = useState('completed');
+  const [refresh,setRefresh] = useState(false);
   const token = Cookies.get("token");
 
   const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -48,7 +50,7 @@ export default function MyRequests2() {
       }
     };
     fetchRequests();
-  }, [token]);
+  }, [token,refresh]);
 
   const filteredRequests = requests
     .filter(b => {
@@ -148,8 +150,8 @@ export default function MyRequests2() {
     console.log('Edit request:', id);
   };
 
-  const handleClose = (id) => {
-    console.log('Close request:', id);
+  const handleClose = ({requestId}) => {
+    console.log('Close request:', requestId);
   };
 
   const handleAcceptProposal = (requestId, proposalId) => {
@@ -178,8 +180,8 @@ export default function MyRequests2() {
         <div className="mb-8">
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Requests</h1>
-              <p className="text-gray-600">Manage and track all your service requests</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Orders</h1>
+              <p className="text-gray-600">Manage and track all your orders requests</p>
             </div>
           </div>
 
@@ -216,6 +218,7 @@ export default function MyRequests2() {
                 onViewDetails={handleViewDetails}
                 onCancel={handleCancelBooking}
                 className="cancel-button-small"
+                setRefresh={setRefresh}
               />
             ))
           ) : (

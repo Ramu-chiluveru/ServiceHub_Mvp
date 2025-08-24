@@ -19,7 +19,8 @@ const RequestsTab = ({
   closeProposalModal,
   submitProposal,
   filteredJobs,
-  setJobRequests
+  setJobRequests,
+  setRefresh
 }) => {
   const [showMap, setShowMap] = useState(false);
   const [confirmationModal, setConfirmationModal] = useState({ isOpen: false, job: null });
@@ -58,7 +59,8 @@ const RequestsTab = ({
         }
       });
 
-      if (response.ok) {
+      if (response.ok) 
+        {
         console.log("Proposal raised successfully");
         handleCancelConfirmation();
       } else {
@@ -71,6 +73,7 @@ const RequestsTab = ({
 
 
   const handleCancelConfirmation = () => {
+    setRefresh(true);
     setConfirmationModal({ isOpen: false, job: null });
   };
 

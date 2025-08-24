@@ -2,22 +2,27 @@ import React, { useState } from "react";
 import Cookies from "js-cookie";
 import { AlertCircle, CheckCircle, X } from "lucide-react";
 
-const ConfirmPopup = ({ message, id, onClose }) => {
+const ConfirmPopup = ({ message, id, onClose,setRefresh }) => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleConfirm = async () => {
     const token = Cookies.get("token");
     const BASE_URL = import.meta.env.VITE_BASE_URL;
-    const endpoint = `${BASE_URL}/api/customer/proposal/`;
+
+
+    let endpoint = `${BASE_URL}/api/customer/proposal`;
+    if(id.proposalId == null)
+        endpoint = `${BASE_URL}/api/provider/proposal`
     const payload = { status : "cancelled"};
 
     console.log(`endpoint: ${endpoint} with token: ${token}`);
 
     try {
       setLoading(true);
+      console.log("payload: ",JSON.stringify(id));
       const response = await fetch(endpoint, {
-        method: "PUT",
+        method: (id.proposalId !== null) ? "PUT" : "DELETE",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -33,6 +38,7 @@ const ConfirmPopup = ({ message, id, onClose }) => {
         return;
       }
 
+      setRefresh(true);
       setStatus("success");
     } 
     catch (err) 
@@ -55,7 +61,7 @@ const ConfirmPopup = ({ message, id, onClose }) => {
         {status === null && (
           <>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              {message} <span className="text-blue-600 font-mono">{id.proposalId}</span>
+              {message} <span className="text-blue-600 font-mono">{id.requestId || id.proposalId}</span>
             </h2>
             <div className="flex justify-center gap-4 mt-6">
               <button

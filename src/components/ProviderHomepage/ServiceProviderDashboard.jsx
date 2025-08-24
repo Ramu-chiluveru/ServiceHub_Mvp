@@ -36,6 +36,7 @@ const ServiceProviderDashboard = () => {
   const [weeklyEarnings, setWeeklyEarnings] = useState(0);
   const [proposals, setProposals] = useState([]);
   const [jobRequests, setJobRequests] = useState([]);
+  const [refresh,setRefresh] = useState(false);
 
   const   token = Cookies.get("token");
   const { location, loading } = useUserLocation();
@@ -93,7 +94,7 @@ const ServiceProviderDashboard = () => {
       clearInterval(weeklyInterval);
       clearInterval(jobsInterval);
     };
-  }, []);
+  }, [token,refresh]);
 
   useEffect(() => {
     if (!token) return;
@@ -111,7 +112,7 @@ const ServiceProviderDashboard = () => {
       .catch(err => console.error("Error fetching jobs", err));
 
     console.log(jobRequests);
-  }, [token]);
+  }, [token,refresh]);
 
   useEffect(() => {
     if (!loading && location?.lat && location?.lng && !hasSentLocation.current) 
@@ -136,7 +137,7 @@ const ServiceProviderDashboard = () => {
           hasSentLocation.current = false;
         });
     }
-  }, [location, loading, token]);
+  }, [location, loading, token,refresh]);
 
   const filteredJobs = jobRequests.filter(job => {
     const matchesSearch = job.customer?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -255,6 +256,7 @@ const ServiceProviderDashboard = () => {
             openProposalModal={openProposalModal}
             closeProposalModal={closeProposalModal}
             submitProposal={submitProposal}
+            setRefresh={setRefresh}
           />
         )}
 
