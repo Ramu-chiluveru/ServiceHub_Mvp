@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Cookies from "js-cookie";
 import { AlertCircle, CheckCircle, X } from "lucide-react";
 
-const ConfirmPopup = ({ message, id, onClose }) => {
+const ConfirmPopup = ({ message, id, onClose,setRefesh }) => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -33,6 +33,7 @@ const ConfirmPopup = ({ message, id, onClose }) => {
       }
 
       setStatus("success");
+      setRefesh(true);
     } 
     catch (err) 
     {

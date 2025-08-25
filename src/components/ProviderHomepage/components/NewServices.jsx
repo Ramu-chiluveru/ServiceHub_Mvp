@@ -14,6 +14,9 @@ const NewService = () => {
   const [editingService, setEditingService] = useState(null);
   const navigate = useNavigate();
   const token = Cookies.get("token");
+
+  const [refresh,setRefresh] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -60,7 +63,7 @@ const NewService = () => {
     }
     fetchServices();
 
-  },[close.confirm]);
+  },[close.confirm,token,refresh]);
 
   const handleEdit = (service) => {
     setEditingService(service);
@@ -119,7 +122,7 @@ const NewService = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {(plusClicked || editingService != null) && (
         <div onClick={() => setPlusClicked(false)}>
-          <PopupForm onClose={() => setPlusClicked(false)} setEditingService={setEditingService} service={editingService}/>
+          <PopupForm onClose={() => setPlusClicked(false)} setEditingService={setEditingService} service={editingService} setRefresh={setRefresh}/>
         </div>
       )}
 
@@ -187,7 +190,7 @@ const NewService = () => {
         )}
       </div>
 
-      {close.confirm && <ConfirmPopup message={"Are you sure to cancel the request?"} id={close.id} onClose={onClose}/> }
+      {close.confirm && <ConfirmPopup message={"Are you sure to cancel the request?"} id={close.id} onClose={onClose} setRefesh={setRefresh}/> }
 
       {/* Floating Add Button (Mobile) */}
       {/* <div className="fixed bottom-6 right-6 md:hidden">

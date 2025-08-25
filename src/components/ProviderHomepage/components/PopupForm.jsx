@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, X, Upload, Star, AlertCircle } from 'lucide-react';
 import Cookies from 'js-cookie';
 
-const PopupForm = ({ onClose, onRequestAdded, onViewRequests,setEditingService,service }) => {
+const PopupForm = ({ onClose, onRequestAdded, onViewRequests,setEditingService,service,setRefresh }) => {
   // State management for form fields
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
@@ -94,6 +94,7 @@ const PopupForm = ({ onClose, onRequestAdded, onViewRequests,setEditingService,s
       if (isEditing && setEditingService) {
         setEditingService(null);
       }
+      setRefresh(true);
 
     } catch (error) {
       console.error("Request failed:", error);

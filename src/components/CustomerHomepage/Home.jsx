@@ -1,231 +1,232 @@
-import React, { useState,useEffect } from 'react';
-import { Search, MapPin, Star, User, Plus, Menu, X, Filter, ChevronDown } from 'lucide-react';
-import PopupForm from './requestspage/PopupForm';
-import useUserLocation from '../../hooks/UserLocation';
-import Cookies from 'js-cookie';
+import React, { useState, useEffect } from "react";
+import {
+  Search,
+  MapPin,
+  Star,
+  User,
+  Plus,
+  Menu,
+  X,
+  Filter,
+  ChevronDown,
+  Check,
+  AlertCircle,
+} from "lucide-react";
+import PopupForm from "./requestspage/PopupForm";
+import useUserLocation from "../../hooks/UserLocation";
+import Cookies from "js-cookie";
 
 const Home = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('');
-  const [selectedRating, setSelectedRating] = useState('');
-  const [selectedServiceType, setSelectedServiceType] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedRating, setSelectedRating] = useState("");
+  const [selectedServiceType, setSelectedServiceType] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState('rating');
-  const [sortOrder, setSortOrder] = useState('desc');
+  const [sortBy, setSortBy] = useState("rating");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [filteredServices, setFilteredServices] = useState([]);
   const [isLoading, setLoading] = useState(true);
+  const [featuredServices, setFeaturedServices] = useState([]);
+  const [plusClicked, setPlusClicked] = useState(false);
+
+  // Booking confirmation states
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [bookingStatus, setBookingStatus] = useState("idle"); // idle, loading, success, error
 
   const serviceCategories = [
-    { name: 'Crafts', icon: '🎨' },
-    { name: 'Plumbers', icon: '🔧' },
-    { name: 'Electricians', icon: '⚡' },
-    { name: 'Cleaners', icon: '🧹' },
-    { name: 'Gardeners', icon: '🌱' },
-    { name: 'Painters', icon: '🎨' },
+    { name: "Crafts", icon: "🎨" },
+    { name: "Plumbers", icon: "🔧" },
+    { name: "Electricians", icon: "⚡" },
+    { name: "Cleaners", icon: "🧹" },
+    { name: "Gardeners", icon: "🌱" },
+    { name: "Painters", icon: "🎨" },
   ];
+
+  const categoryIcons = {
+    plumbing: "🔧",
+    "ac-repair": "❄️",
+    furniture: "🪑",
+    electrical: "⚡",
+    cleaning: "🧹",
+    carpentry: "🪚",
+    painting: "🎨",
+    appliance: "🔌",
+    "pest-control": "🐜",
+    landscaping: "🌱",
+    "home-security": "🔒",
+    other: "🛠️",
+  };
 
   const { location, loading, error } = useUserLocation();
   console.log(`location: ${JSON.stringify(location)}`);
+  const token = Cookies.get("token");
+
+  // Booking handlers
+  const handleBookNow = (service) => {
+    setSelectedService(service);
+    setShowConfirmModal(true);
+    setBookingStatus("idle");
+  };
+
+  const handleConfirmBooking = async () => {
+    setBookingStatus("loading");
+
+    try {
+      const BASE_URL = import.meta.env.VITE_BASE_URL;
+      const response = await fetch(`${BASE_URL}/api/bookings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          serviceId: selectedService.id,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setBookingStatus("success");
+        console.log("Booking confirmed:", result);
+        // Close modal after 2 seconds
+        setTimeout(() => {
+          setShowConfirmModal(false);
+          setBookingStatus("idle");
+        }, 2000);
+      } else {
+        throw new Error("Booking failed");
+      }
+    } catch (error) {
+      console.error("Error booking service:", error);
+      setBookingStatus("error");
+    }
+  };
+
+  const handleCancelBooking = () => {
+    setShowConfirmModal(false);
+    setSelectedService(null);
+    setBookingStatus("idle");
+  };
 
   useEffect(() => {
-  if (!loading && location.lat && location.lng) {
-    const token = Cookies.get("token");
-
-    const saveLocation = async () => {
-      try {
-        const BASE_URL = import.meta.env.VITE_BASE_URL;
-        const endpoint = `${BASE_URL}/api/user/location`;
-
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            latitude: location.lat,
-            longitude: location.lng
-          })
-        });
-        const data = await res.text();
-        console.log("Saved location:", data);
-      } catch (err) {
-        console.error("Failed to save location", err);
-      }
-    };
-
-    saveLocation();
-  }
-}, [location, loading]);
-
-   useEffect(() => {
-      const fetchRequests = async () => {
+    if (!loading && location.lat && location.lng) {
+      const saveLocation = async () => {
         try {
-          setLoading(true);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        } catch (err) 
-        {
-        } finally {
-          setLoading(false);
+          const BASE_URL = import.meta.env.VITE_BASE_URL;
+          const endpoint = `${BASE_URL}/api/user/location`;
+
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              latitude: location.lat,
+              longitude: location.lng,
+            }),
+          });
+          const data = await res.text();
+          console.log("Saved location:", data);
+        } catch (err) {
+          console.error("Failed to save location", err);
         }
       };
-      fetchRequests();
-    }, []);
 
-  const featuredServices = [
-    {
-      id: 1,
-      title: 'Professional House Cleaning',
-      provider: 'CleanPro Services',
-      rating: 4.8,
-      price: 50,
-      priceDisplay: '$50/hour',
-      image: '🏠',
-      category: 'Cleaners',
-      location: 'Downtown',
-      reviews: 156
-    },
-    {
-      id: 2,
-      title: 'Emergency Plumbing Repair',
-      provider: 'QuickFix Plumbing',
-      rating: 4.9,
-      price: 80,
-      priceDisplay: '$80/hour',
-      image: '🔧',
-      category: 'Plumbers',
-      location: 'Midtown',
-      reviews: 203
-    },
-    {
-      id: 3,
-      title: 'Electrical Installation',
-      provider: 'PowerPro Electric',
-      rating: 4.7,
-      price: 65,
-      priceDisplay: '$65/hour',
-      image: '⚡',
-      category: 'Electricians',
-      location: 'Uptown',
-      reviews: 89
-    },
-    {
-      id: 4,
-      title: 'Garden Landscaping',
-      provider: 'Green Thumb Gardens',
-      rating: 4.6,
-      price: 45,
-      priceDisplay: '$45/hour',
-      image: '🌱',
-      category: 'Gardeners',
-      location: 'Suburbs',
-      reviews: 134
-    },
-    {
-      id: 5,
-      title: 'Interior Painting',
-      provider: 'ColorCraft Painters',
-      rating: 4.5,
-      price: 40,
-      priceDisplay: '$40/hour',
-      image: '🎨',
-      category: 'Painters',
-      location: 'Downtown',
-      reviews: 76
-    },
-    {
-      id: 6,
-      title: 'Carpet Cleaning',
-      provider: 'FreshStart Cleaners',
-      rating: 4.8,
-      price: 35,
-      priceDisplay: '$35/hour',
-      image: '🧽',
-      category: 'Cleaners',
-      location: 'Midtown',
-      reviews: 112
-    },
-    {
-      id: 7,
-      title: 'Custom Woodwork',
-      provider: 'Artisan Wood Co.',
-      rating: 4.9,
-      price: 75,
-      priceDisplay: '$75/hour',
-      image: '🪵',
-      category: 'Crafts',
-      location: 'Workshop District',
-      reviews: 67
-    },
-    {
-      id: 8,
-      title: 'HVAC Maintenance',
-      provider: 'CoolAir Systems',
-      rating: 4.4,
-      price: 85,
-      priceDisplay: '$85/hour',
-      image: '❄️',
-      category: 'Electricians',
-      location: 'Industrial Area',
-      reviews: 98
+      saveLocation();
     }
-  ];
+  }, [location, loading]);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      const BASE_URL = import.meta.env.VITE_BASE_URL;
+      const endpoint = `${BASE_URL}/api/provider/services/all`;
+      try {
+        setLoading(true);
+        const res = await fetch(endpoint, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        console.log("services:", data);
+        setFeaturedServices(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Error fetching services:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRequests();
+  }, [token]);
 
   // Filter and sort services
   const getFilteredAndSortedServices = () => {
-    let filtered = featuredServices.filter(service => {
-      const matchesSearch = searchQuery === '' || 
-        service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        service.provider.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        service.category.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesLocation = selectedLocation === '' || 
-        service.location.toLowerCase().includes(selectedLocation.toLowerCase());
-      
-      const matchesServiceType = selectedServiceType === '' || 
-        service.category === selectedServiceType;
-      
-      const matchesRating = selectedRating === '' || 
-        (selectedRating === '4.5+' && service.rating >= 4.5) ||
-        (selectedRating === '4.0+' && service.rating >= 4.0) ||
-        (selectedRating === '3.5+' && service.rating >= 3.5);
-      
-      return matchesSearch && matchesLocation && matchesServiceType && matchesRating;
+    let filtered = featuredServices?.filter((service) => {
+      const matchesSearch =
+        searchQuery === "" ||
+        (service.title &&
+          service.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (service.provider &&
+          service.provider.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (service.category &&
+          service.category.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      const matchesLocation =
+        selectedLocation === "" ||
+        (service.location &&
+          service.location
+            .toLowerCase()
+            .includes(selectedLocation.toLowerCase()));
+
+      const matchesServiceType =
+        selectedServiceType === "" || service.category === selectedServiceType;
+
+      const matchesRating =
+        selectedRating === "" ||
+        (selectedRating === "4.5+" && service.rating >= 4.5) ||
+        (selectedRating === "4.0+" && service.rating >= 4.0) ||
+        (selectedRating === "3.5+" && service.rating >= 3.5);
+
+      return (
+        matchesSearch && matchesLocation && matchesServiceType && matchesRating
+      );
     });
 
     // Sort the filtered results
     filtered.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
-        case 'price':
-          comparison = a.price - b.price;
+        case "price":
+          comparison = (a.price || 0) - (b.price || 0);
           break;
-        case 'rating':
-          comparison = a.rating - b.rating;
+        case "rating":
+          comparison = (a.rating || 0) - (b.rating || 0);
           break;
-        case 'reviews':
-          comparison = a.reviews - b.reviews;
+        case "reviews":
+          comparison = (a.reviews || 0) - (b.reviews || 0);
           break;
-        case 'name':
-          comparison = a.title.localeCompare(b.title);
+        case "name":
+          comparison = (a.title || "").localeCompare(b.title || "");
           break;
         default:
-          comparison = a.rating - b.rating;
+          comparison = (a.rating || 0) - (b.rating || 0);
       }
-      
-      return sortOrder === 'desc' ? -comparison : comparison;
+
+      return sortOrder === "desc" ? -comparison : comparison;
     });
 
     return filtered;
   };
 
-  const [plusClicked,setPlusClicked] = useState(false);
-
   const sortedServices = getFilteredAndSortedServices();
 
-  if(isLoading)
-  {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
         <div className="text-center">
@@ -235,7 +236,6 @@ const Home = () => {
       </div>
     );
   }
-
 
   return (
     <div className="min-h-screen bg-white mt-10">
@@ -312,11 +312,14 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
-              {searchQuery || selectedLocation || selectedServiceType || selectedRating ? 
-                `Search Results (${sortedServices.length})` : 
-                'Featured Services'}
+              {searchQuery ||
+              selectedLocation ||
+              selectedServiceType ||
+              selectedRating
+                ? `Search Results (${sortedServices.length})`
+                : "Featured Services"}
             </h2>
-            
+
             {/* Sorting Controls */}
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
@@ -332,13 +335,15 @@ const Home = () => {
                   <option value="name">Name</option>
                 </select>
               </div>
-              
+
               <button
-                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                onClick={() =>
+                  setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                }
                 className="flex w-30 items-center space-x-1 px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors"
               >
-                <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>
-                <span>{sortOrder === 'asc' ? 'Ascending' : 'Descending'}</span>
+                <span>{sortOrder === "asc" ? "↑" : "↓"}</span>
+                <span>{sortOrder === "asc" ? "Ascending" : "Descending"}</span>
               </button>
             </div>
           </div>
@@ -346,8 +351,12 @@ const Home = () => {
           {sortedServices.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-400 text-6xl mb-4">🔍</div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">No services found</h3>
-              <p className="text-gray-600">Try adjusting your search criteria or filters</p>
+              <h3 className="text-xl font-medium text-gray-900 mb-2">
+                No services found
+              </h3>
+              <p className="text-gray-600">
+                Try adjusting your search criteria or filters
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -357,29 +366,42 @@ const Home = () => {
                   className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer border border-gray-100 hover:border-blue-200"
                 >
                   <div className="p-6">
-                    <div className="text-4xl mb-4 text-center">{service.image}</div>
+                    <div className="text-4xl mb-4 text-center">
+                      {categoryIcons[service.category?.toLowerCase()] || "🛠️"}
+                    </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                      {service.title}
+                      {service.title || service.servicename}
                     </h3>
-                    <p className="text-gray-600 mb-2">{service.provider}</p>
+                    <p className="text-gray-600 mb-2">{service.description}</p>
                     <p className="text-sm text-gray-500 mb-3 flex items-center">
                       <MapPin className="h-3 w-3 mr-1" />
-                      {service.location}
+                      {service.location || "Region"}
                     </p>
-                    
+
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-2">
                         <div className="flex items-center">
                           <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                          <span className="text-sm font-medium text-gray-900 ml-1">{service.rating}</span>
+                          <span className="text-sm font-medium text-gray-900 ml-1">
+                            {service.rating || service.ratings || "N/A"}
+                          </span>
                         </div>
-                        <span className="text-xs text-gray-500">({service.reviews} reviews)</span>
+                        <span className="text-xs text-gray-500">
+                          ({service.reviews || 0} reviews)
+                        </span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-blue-600">{service.priceDisplay}</span>
-                      <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                      <span className="text-lg font-bold text-blue-600">
+                        {service.priceDisplay ||
+                          service.price ||
+                          "Contact for price"}
+                      </span>
+                      <button
+                        onClick={() => handleBookNow(service)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                      >
                         Book Now
                       </button>
                     </div>
@@ -390,6 +412,132 @@ const Home = () => {
           )}
         </div>
       </div>
+
+      {/* Booking Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white/80 backdrop-blur-md rounded-lg shadow-xl max-w-md w-full mx-auto my-8">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Confirm Booking
+                </h3>
+                <button
+                  onClick={handleCancelBooking}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {bookingStatus === "idle" && (
+                <>
+                  <div className="mb-6">
+                    <div className="flex items-center mb-3">
+                      <div className="text-2xl mr-3">
+                        {categoryIcons[
+                          selectedService?.category?.toLowerCase()
+                        ] || "🛠️"}
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">
+                          {selectedService?.title ||
+                            selectedService?.servicename}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {selectedService?.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 rounded-md p-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm text-gray-600">Price:</span>
+                        <span className="font-semibold text-blue-600">
+                          {selectedService?.priceDisplay ||
+                            selectedService?.price}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Rating:</span>
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                          <span className="text-sm font-medium ml-1">
+                            {selectedService?.rating ||
+                              selectedService?.ratings}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-gray-600 mb-6">
+                    Are you sure you want to book this service? You will be
+                    contacted by the service provider to confirm the details.
+                  </p>
+
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={handleCancelBooking}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleConfirmBooking}
+                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                      Confirm Booking
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {bookingStatus === "loading" && (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Processing your booking...</p>
+                </div>
+              )}
+
+              {bookingStatus === "success" && (
+                <div className="text-center py-8">
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                    <Check className="h-6 w-6 text-green-600" />
+                  </div>
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">
+                    Booking Confirmed!
+                  </h4>
+                  <p className="text-gray-600">
+                    Your booking request has been sent successfully. The service
+                    provider will contact you soon.
+                  </p>
+                </div>
+              )}
+
+              {bookingStatus === "error" && (
+                <div className="text-center py-8">
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <AlertCircle className="h-6 w-6 text-red-600" />
+                  </div>
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">
+                    Booking Failed
+                  </h4>
+                  <p className="text-gray-600 mb-4">
+                    There was an error processing your booking. Please try
+                    again.
+                  </p>
+                  <button
+                    onClick={() => setBookingStatus("idle")}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* How It Works Section */}
       <div className="bg-gray-50 py-16">
@@ -402,50 +550,58 @@ const Home = () => {
               <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Search className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Search & Filter</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Search & Filter
+              </h3>
               <p className="text-gray-600">
-                Find the right service provider using our advanced search and filtering options
+                Find the right service provider using our advanced search and
+                filtering options
               </p>
             </div>
             <div className="text-center">
               <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <User className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Connect & Book</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Connect & Book
+              </h3>
               <p className="text-gray-600">
-                Connect with verified professionals and book your service instantly
+                Connect with verified professionals and book your service
+                instantly
               </p>
             </div>
             <div className="text-center">
               <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <Star className="h-8 w-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Rate & Review</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Rate & Review
+              </h3>
               <p className="text-gray-600">
-                Share your experience and help others find the best service providers
+                Share your experience and help others find the best service
+                providers
               </p>
             </div>
           </div>
         </div>
       </div>
 
-    
-    {plusClicked && (
-      <div onClick={() => setPlusClicked(false)}>
-        <PopupForm onClose={() => setPlusClicked(false)} reqId={null}/>
-      </div>
-    )}
+      {/* Popup Form */}
+      {plusClicked && (
+        <div onClick={() => setPlusClicked(false)}>
+          <PopupForm onClose={() => setPlusClicked(false)} reqId={null} />
+        </div>
+      )}
 
-
-    <button
-      onClick={() => setPlusClicked(true)}
-      className={`fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 z-40 transform hover:scale-110 active:scale-95 ${
-        plusClicked ? 'rotate-45 bg-red-500' : 'rotate-0'
-      }`}
-    >
+      {/* Add Service Button */}
+      <button
+        onClick={() => setPlusClicked(true)}
+        className={`fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 z-40 transform hover:scale-110 active:scale-95 ${
+          plusClicked ? "rotate-45 bg-red-500" : "rotate-0"
+        }`}
+      >
         <Plus className="h-6 w-6 transition-transform duration-300" />
-    </button>
-
+      </button>
     </div>
   );
 };
