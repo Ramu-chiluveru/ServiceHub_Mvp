@@ -79,7 +79,7 @@ export default function MultiStepRegister()
         dispatch(showToast({ message: "Please verify email with OTP.", type: "error" }));
         return;
       }
-      if (!form.otp || form.otp !== generatedOtp) {
+      if (!otpValid) {
         dispatch(showToast({ message: "Invalid OTP.", type: "error" }));
         return;
       }

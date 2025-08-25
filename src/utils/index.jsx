@@ -1,4 +1,3 @@
-// utils/index.js
 import { useSelector, useDispatch } from 'react-redux';
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -28,23 +27,38 @@ export const validatePassword = (password) => {
   return password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password);
 };
 
-// OTP sender logic
-export const sendOtp = (form, dispatch, setGeneratedOtp, setOtpSent, setResendTimer, showToast) => {
+// OTP sender logic (calls backend instead of fake OTP)
+export const sendOtp = async (form, dispatch) => {
   if (!validateEmail(form.email)) {
     dispatch(showToast({ message: "Enter a valid email address.", type: "error" }));
     return;
   }
 
-  const fakeOtp = "123456";
-  dispatch(setGeneratedOtp(fakeOtp));
-  dispatch(setOtpSent(true));
-  dispatch(setResendTimer(30));
-  dispatch(showToast({ message: "OTP sent to your email.", type: "success" }));
+  try {
+    console.log("OTP Generated res: ",res);
+    const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8080";
+    const res = await axios.post(`${BASE_URL}/api/otp/generate`, { email: form.email });
+    console.log("OTP Generated res: ",res);
+
+    // If backend returns OTP (for testing, not production)
+    if (res.data?.otp) {
+      dispatch(setGeneratedOtp(res.data.otp));
+    }
+
+    dispatch(setOtpSent(true));
+    dispatch(setResendTimer(60)); // 60 sec timer
+    dispatch(showToast({ message: res.data?.message || "OTP sent to your email.", type: "success" }));
+
+  } catch (error) {
+    const message = error?.response?.data?.message || error?.message || "Failed to send OTP";
+    dispatch(showToast({ message, type: "error" }));
+  }
 };
 
-// utils/index.js
+// Register API calls
 export const call_to_register = async (form, step, dispatch, completedSteps, navigate) => {
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8080";
+  console.log(`base url: ${BASE_URL}`);
   dispatch(setLoading(true));
   try {
     let endpoint = "";
@@ -58,9 +72,7 @@ export const call_to_register = async (form, step, dispatch, completedSteps, nav
         lastName: form.lastName,
         password: form.password
       };
-    } 
-    else if (step === 2) 
-      {
+    } else if (step === 2) {
       endpoint = "/api/user/role";
       payload = {
         email: form.email,
@@ -78,9 +90,7 @@ export const call_to_register = async (form, step, dispatch, completedSteps, nav
         state: form.state,
         pincode: form.pincode,
         ...(form.role === "customer" ? { preferences: form.preferences } : {}),
-        ...(form.role === "provider" ? {
-          services: form.services
-        } : {})
+        ...(form.role === "provider" ? { services: form.services } : {})
       };
     }
 
@@ -93,20 +103,21 @@ export const call_to_register = async (form, step, dispatch, completedSteps, nav
 
     console.log(res);
 
-    if (step < 3) 
-    {
+    if (step < 3) {
       dispatch(setCurrentStep(step + 1));
     } else {
-      Cookies.set('role', res.data.role, { expires: 7, sameSite: 'Lax' });
-      Cookies.set('token', res.data.token, { expires: 7, sameSite: 'Lax' });
+      if (res.data.role) Cookies.set('role', res.data.role, { expires: 7, sameSite: 'Lax' });
+      if (res.data.token) Cookies.set('token', res.data.token, { expires: 7, sameSite: 'Lax' });
+
       navigate("/home");
       dispatch(showToast({ message: "Registration completed!", type: "success" }));
     }
-    dispatch(showToast({ message: res.message || `Step ${step} completed!`, type: "success" }));
+
+    dispatch(showToast({ message: res.data?.message || `Step ${step} completed!`, type: "success" }));
     dispatch(setCompletedSteps([...completedSteps, step]));
 
   } catch (error) {
-    const message = error?.response?.data || error?.message || "Something went wrong";
+    const message = error?.response?.data?.message || error?.message || "Something went wrong";
     dispatch(showToast({ message, type: "error" }));
   } finally {
     dispatch(setLoading(false));
